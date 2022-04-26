@@ -125,3 +125,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL="/login/"
 LOGIN_REDIRECT_URL = '/'
+
+EMAIL_USE_TLS = False
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = 'registration@localhost'
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 25
+
+AUTH_USER_MODEL = 'core.User'
