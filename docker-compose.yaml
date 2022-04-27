@@ -1,0 +1,30 @@
+version: "3.9"
+   
+services:
+  db:
+    image: postgres:14.2-alpine
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  postfix:
+    image: adepasquale/postfix-catchall
+    environment:
+      - SMTP_SERVER=localhost
+      - SERVER_HOSTNAME=localhost
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+      - postfix
