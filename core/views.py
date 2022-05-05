@@ -1,6 +1,5 @@
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from smtplib import SMTPRecipientsRefused
-from tokenize import Token
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
@@ -10,7 +9,6 @@ from django.utils.encoding import force_bytes
 from agh_ix.settings import EMAIL_HOST_USER
 from core.forms import SignUpForm
 from django.core.mail import send_mail
-from django.contrib.auth.tokens import PasswordResetTokenGenerator  
 from django.contrib.auth import get_user_model
 from core.models import User
 from core.tokens import account_activation_token
@@ -26,11 +24,11 @@ def register(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            user.refresh_from_db() # load the profile instance created by the signal  
+            user.refresh_from_db()
             user.is_active = False
-            user.profile.name = form.cleaned_data.get('name')
-            user.profile.surname = form.cleaned_data.get('surname')
-            user.profile.email = form.cleaned_data.get('email')
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_surname = form.cleaned_data.get('last_name')
+            user.email = form.cleaned_data.get('email')
             user.save()
             current_site = get_current_site(request)
             mail_subject = 'Activate your AGH-IX account.'
@@ -46,7 +44,7 @@ def register(request):
                     mail_subject,
                     message,
                     EMAIL_HOST_USER,
-                    [user.profile.email],
+                    [user.email],
                     fail_silently=False,
                 )
             except SMTPRecipientsRefused:
