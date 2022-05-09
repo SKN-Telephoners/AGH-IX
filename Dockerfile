@@ -6,3 +6,5 @@ COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 COPY . /code/
 USER 1001
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
