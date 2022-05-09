@@ -2,3 +2,5 @@ Django==4.0.4
 psycopg2==2.9.3
 six==1.16.0
 crispy-bootstrap5
+requests==2.27.1
+python-daemon==2.3.0
