@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 import time
 from daemon import runner
@@ -6,11 +7,11 @@ from daemon import runner
 
 class Zerotier_API(object):
 
-    def __init__(self, local_api_key):
-        self.local_api_key = str(local_api_key)
+    def __init__(self):
+        self.local_api_key = os.getenv('ZEROTIER_API_KEY')
         self.local_api = "http://localhost:9993"
         self.device_list = {}
-        self.prod_network = "b94f532ca0c4db80"
+        self.prod_network = os.getenv('ZEROTIER_NETWORK')
         self.device_count = None
 
 
@@ -25,36 +26,36 @@ class Zerotier_API(object):
 ########################################################################################################################
 
     def status(self):
-        return self.request_local("/status").json() #okej
+        return self.request_local("/status").json()
 
     def local_networks(self):
-        return self.request_local("/network").json() #okej
+        return self.request_local("/network").json()
 
     def peers(self):
-        return self.request_local("/peer").json() #okej
+        return self.request_local("/peer").json()
 
     def controller(self):
-        return self.request_local("/controller").json() #okej
+        return self.request_local("/controller").json()
 
 ########################################################################################################################
 
     def get_local_network(self, nwid):
-        return self.request_local("/network/" + nwid).json() #okej
+        return self.request_local("/network/" + nwid).json()
 
     def get_peer(self,ndid):
-        return self.request_local("/peer" + ndid).json() #okej
+        return self.request_local("/peer" + ndid).json()
 
     def list_controller_networks(self):
-        return self.request_local("/controller/network").json() #okej
+        return self.request_local("/controller/network").json()
 
     def get_controller_network(self, nwid):
-        return self.request_local("/controller/network/" + nwid).json() #okej
+        return self.request_local("/controller/network/" + nwid).json()
 
     def get_controller_network_members(self, nwid):
-        return self.request_local("/controller/network/" + nwid + "/member").json() #okej
+        return self.request_local("/controller/network/" + nwid + "/member").json()
 
     def get_controller_network_member(self, nwid, ndid):
-        return self.request_local("/controller/network/" + nwid + "/member/" + ndid).json() #okej
+        return self.request_local("/controller/network/" + nwid + "/member/" + ndid).json()
 
 ########################################################################################################################
 
@@ -101,7 +102,7 @@ class Daemon():
 
     def run(self):
         while True:
-            z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm")
+            z = Zerotier_API()
             device_list = z.get_controller_network_members(z.prod_network).keys()
             if len(device_list) != z.device_count:
                 new_clients = list(set(device_list) - set(z.device_list))
@@ -111,20 +112,6 @@ class Daemon():
                 z.device_count = len(z.device_list)
                 time.sleep(10)
 
-    if __name__ == "__main__":
-        z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm")
-        print(z.get_controller_network_members(z.prod_network))
-        device_list = z.get_controller_network_members(z.prod_network).keys()
-        print(device_list)
-        print(z.post_node("b94f532ca0c4db80", "3e56ec1d02", False, False,
-                          "192.168.4.1", False))  # example
-
-    """
-    z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm", central_api_key="esfMOt8OjFHdTT928rK1iPzWxLV11Kp1")
-    print(z.post_node("3efa5cb78a7d9141", "b3bf7fdcf9", "as210645", "peering with as210645", False, False, "192.168.4.1", False )) #example
-    app = Daemon()
-    daemon_runner = runner.DaemonRunner(app)
-    daemon_runner.do_action()
-    print(z.device_list)
-    """
-
+app = Daemon()
+daemon_runner = runner.DaemonRunner(app)
+daemon_runner.do_action()
