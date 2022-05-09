@@ -6,13 +6,11 @@ from daemon import runner
 
 class Zerotier_API(object):
 
-    def __init__(self, local_api_key, central_api_key):
+    def __init__(self, local_api_key):
         self.local_api_key = str(local_api_key)
-        self.central_api_key = str(central_api_key)
         self.local_api = "http://localhost:9993"
-        self.central_api = "https://my.zerotier.com/api/v1/"
         self.device_list = {}
-        self.prod_network = "b94f532ca08af24a"
+        self.prod_network = "b94f532ca0c4db80"
         self.device_count = None
 
 
@@ -21,12 +19,6 @@ class Zerotier_API(object):
             return requests.get(self.local_api + path, headers={'X-ZT1-Auth':self.local_api_key})
         else:
             return requests.post(self.local_api + path, headers={'X-ZT1-Auth':self.local_api_key}, data=data)
-
-    def request_central(self, path, data=None):
-        if data == None:
-            return requests.get(self.central_api + path, headers={'Authorization': 'Bearer ' + self.central_api_key})
-        else:
-            return requests.post(self.central_api + path, headers={'Authorization': 'Bearer ' + self.central_api_key}, data=data)
 
 
 
@@ -87,18 +79,16 @@ class Zerotier_API(object):
         }
     }
 
-    def post_node(self, nwid, ndid, name, description, active_bridge, authorized, ip_address, no_auto_assign):
+    def post_node(self, nwid, ndid, active_bridge, authorized, ip_address, no_auto_assign):
         template = self.template
-        template["name"] = str(name)
-        template["description"] = str(description)
-        template["config"]["ipAssignments"] = [str(ip_address)]
-        template["config"]["activeBridge"] = bool(active_bridge)
-        template["config"]["authorized"] = bool(authorized)
-        template["config"]["noAutoAssignIps"] = bool(no_auto_assign)
+        template["ipAssignments"] = [str(ip_address)]
+        template["activeBridge"] = bool(active_bridge)
+        template["authorized"] = bool(authorized)
+        template["noAutoAssignIps"] = bool(no_auto_assign)
 
 
         payload = json.dumps(template)
-        return self.request_central("network/"+nwid+"/member/"+ndid, data=payload).json()
+        return self.request_local("/controller/network/"+nwid+"/member/"+ndid, data=payload).json()
 
 
 class Daemon():
@@ -111,8 +101,7 @@ class Daemon():
 
     def run(self):
         while True:
-            z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm",
-                             central_api_key="esfMOt8OjFHdTT928rK1iPzWxLV11Kp1")
+            z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm")
             device_list = z.get_controller_network_members(z.prod_network).keys()
             if len(device_list) != z.device_count:
                 new_clients = list(set(device_list) - set(z.device_list))
@@ -122,6 +111,13 @@ class Daemon():
                 z.device_count = len(z.device_list)
                 time.sleep(10)
 
+    if __name__ == "__main__":
+        z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm")
+        print(z.get_controller_network_members(z.prod_network))
+        device_list = z.get_controller_network_members(z.prod_network).keys()
+        print(device_list)
+        print(z.post_node("b94f532ca0c4db80", "3e56ec1d02", False, False,
+                          "192.168.4.1", False))  # example
 
     """
     z = Zerotier_API(local_api_key="jmafk4t5l78b693flgwe94cm", central_api_key="esfMOt8OjFHdTT928rK1iPzWxLV11Kp1")
@@ -131,3 +127,4 @@ class Daemon():
     daemon_runner.do_action()
     print(z.device_list)
     """
+
