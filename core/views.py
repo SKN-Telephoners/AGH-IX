@@ -18,6 +18,9 @@ get_user_model()
 def home(request):
     return render(request, 'core/home.html')
 
+@login_required
+def network(request):
+    return render(request, 'core/network.html')
 
 def register(request):
     if request.method == 'POST':
