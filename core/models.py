@@ -38,15 +38,19 @@ class BaseConnection(ABC):
         self.description: str = description
 
     @abstractmethod
-    def connect(self):
+    def connect(self) -> str:
         pass
 
     @abstractmethod
-    def disconnect(self):
+    def disconnect(self) -> None:
         pass
 
     @abstractmethod
-    def get_status(self):
+    def get_ip(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_status(self) -> str:
         pass
 
 
@@ -57,10 +61,20 @@ class ZeroTierConnection(BaseConnection):
         type = "ZeroTier"
         super().__init__(asn, type)
     
-    def connect(self):
-        self.zt_api.post_node("af415e486f640e94", self.address, self.asn, self.description, False, False, "0.0.0.0", False )
-        
+    def connect(self) -> str:
+        self.zt_api.post_node(self.address)
+        return self.get_ips()[0]
 
+    def disconnect(self) -> None:
+        self.zt_api.post_node(self.address, False, False, "0.0.0.0", False)
+
+    def get_ip(self) -> str:
+        response: dict = self.zt_api.get_controller_network_member(self.address)
+        return response["config"]["ipAssignments"][0]
+
+    def get_status(self) -> str:
+        response: dict = self.zt_api.get_controller_network_member(self.address)
+        return response["config"]["authorized"]
 
 class GRETAPConnection(BaseConnection):
     def connect(self):

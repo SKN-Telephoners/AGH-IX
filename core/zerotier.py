@@ -30,8 +30,8 @@ class Zerotier_API(object):
     def controller(self):
         return self.request_local("/controller").json()
 
-    def get_local_network(self, nwid):
-        return self.request_local(f'/network/{nwid}').json()
+    def get_local_network(self):
+        return self.request_local(f'/network/{self.prod_network}').json()
 
     def get_peer(self,ndid):
         return self.request_local(f'/peer/{ndid}').json()
@@ -39,14 +39,14 @@ class Zerotier_API(object):
     def list_controller_networks(self):
         return self.request_local("/controller/network").json()
 
-    def get_controller_network(self, nwid):
-        return self.request_local(f'/controller/network/{nwid}').json()
+    def get_controller_network(self):
+        return self.request_local(f'/controller/network/{self.prod_network}').json()
 
-    def get_controller_network_members(self, nwid):
-        return self.request_local(f'/controller/network/{nwid}/member').json()
+    def get_controller_network_members(self):
+        return self.request_local(f'/controller/network/{self.prod_network}/member').json()
 
-    def get_controller_network_member(self, nwid, ndid):
-        return self.request_local(f'/controller/network/{nwid}/member/{ndid}').json()
+    def get_controller_network_member(self, ndid):
+        return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}').json()
 
     template = {
         "hidden": False,
