@@ -8,8 +8,6 @@ from django.db import models
 
 from core.zerotier import Zerotier_API
 
-import time
-
 ONLINE_THRESHOLD = 60
 
 class User(AbstractUser):

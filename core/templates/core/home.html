@@ -1,6 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h2>Welcome, <small>{{ user.username }}</small>!</h2>
-
+<div class="card">
+  <h5 class="card-header">AGH IX</h5>
+  <div class="card-body">
+    <h5 class="card-title">First Polish automatic virtual internet exchange point</h5>
+    <p class="card-text">
+      Project AGH-IX goal is the first Polish automatic virtual internet exchange point.</br>
+      We allow our users to establish BGP peering with themselves directly or via Route-Server.</br>
+      Operations of this IX will are automatic, with little to no interference from NOC operator.</br>
+    </p>
+    {% if user.is_authenticated %}
+      <a href="{% url 'network' %}" class="btn btn-primary">Add Connection</a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn btn-primary">Create account</a>
+    {% endif %}
+    <a href="https://github.com/SKN-Telephoners/AGH-IX" class="btn btn-secondary">View on GitHub</a>
+  </div>
+</div>
 {% endblock %}

@@ -15,7 +15,6 @@ from core.tokens import account_activation_token
 
 get_user_model()
 
-@login_required
 def home(request):
     return render(request, 'core/home.html')
 
