@@ -15,13 +15,15 @@ from core.tokens import account_activation_token
 
 get_user_model()
 
-@login_required
 def home(request):
     return render(request, 'core/home.html')
 
 @login_required
 def network(request):
     network = BaseConnection.objects.filter(user=request.user)
+    for connection in network:
+        connection.active = "connected" if connection.is_connected() else "disconnected"
+    
     return render(request, 'core/network.html', {'network': network})
 
 @login_required
