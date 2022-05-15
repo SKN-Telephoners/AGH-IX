@@ -34,20 +34,20 @@ class ZeroTierConnection(BaseConnection):
     zerotier_address = models.CharField(max_length=10)
     zt_api = Zerotier_API()
 
-    def connect(self) -> str:
-        self.zt_api.post_node(self.address)
-        return self.get_ips()[0]
+    def connect(self):
+        self.zt_api.post_node_connect(self.zerotier_address)
 
     def disconnect(self) -> None:
-        self.zt_api.post_node(self.address, False, False, "0.0.0.0", False)
+        self.zt_api.post_node(self.zerotier_address, False, False, "0.0.0.0", True)
 
     def get_ip(self) -> str:
-        response: dict = self.zt_api.get_controller_network_member(self.address)
-        return response["config"]["ipAssignments"][0]
+        response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
+        print(response)
+        return response["ipAssignments"][0]
 
     def get_status(self) -> str:
-        response: dict = self.zt_api.get_controller_network_member(self.address)
-        return response["config"]["authorized"]
+        response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
+        return response["authorized"]
 
 class GRETAPConnection(BaseConnection):
     ip_address = models.GenericIPAddressField()
