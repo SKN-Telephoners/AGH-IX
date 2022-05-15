@@ -22,6 +22,9 @@ def home(request):
 @login_required
 def network(request):
     network = BaseConnection.objects.filter(user=request.user)
+    for connection in network:
+        connection.active = "connected" if connection.is_connected() else "disconnected"
+    
     return render(request, 'core/network.html', {'network': network})
 
 @login_required

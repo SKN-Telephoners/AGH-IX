@@ -8,6 +8,9 @@ from django.db import models
 
 from core.zerotier import Zerotier_API
 
+import time
+
+ONLINE_THRESHOLD = 60
 
 class User(AbstractUser):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -43,11 +46,25 @@ class ZeroTierConnection(BaseConnection):
     def get_ip(self) -> str:
         response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
         print(response)
-        return response["ipAssignments"][0]
+        try:
+            return response["ipAssignments"][0]
+        except KeyError:
+            return ""
 
-    def get_status(self) -> str:
+    def get_status(self) -> bool:
         response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
-        return response["authorized"]
+        try:
+            return response["authorized"]
+        except:
+            return False
+    
+    def is_connected(self) -> bool:
+        response_peer: dict = self.zt_api.get_peer(self.zerotier_address)
+        response_network: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
+        try:
+            return response_network["vMajor"] != -1 and response_peer["latency"] != -1 and response_network["authorized"]
+        except KeyError:
+            return False
 
 class GRETAPConnection(BaseConnection):
     ip_address = models.GenericIPAddressField()

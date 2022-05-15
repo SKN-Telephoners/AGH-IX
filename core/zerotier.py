@@ -49,6 +49,7 @@ class Zerotier_API(object):
         return self.request_local(f'/controller/network/{self.prod_network}/member').json()
 
     def get_controller_network_member(self, ndid):
+        print (f'/controller/network/{self.prod_network}/member/{ndid}')
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}').json()
 
     template = {
