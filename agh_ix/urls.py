@@ -25,6 +25,7 @@ urlpatterns = [
     path('logout/', auth_views.logout_then_login, name='logout'),
     path('register/', core_views.register, name='register'),
     path('network/', core_views.network, name='network'),
+    path('add_connection/', core_views.add_connection, name='add_connection'),
     path('activate/<uidb64>/<token>', core_views.activate, name='activate'),
     path('admin/', admin.site.urls),
     path('password_change/', auth_views.PasswordChangeView.as_view() , name='password_change'),

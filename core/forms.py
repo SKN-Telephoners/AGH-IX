@@ -1,6 +1,8 @@
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from core.models import User
+from core.models import GRETAPConnection, User, VXLANConnection, ZeroTierConnection
 from django.contrib.auth import get_user_model
+from django.forms import ModelForm
 
 get_user_model()
 
@@ -12,4 +14,24 @@ class SignUpForm(UserCreationForm):
         self.fields['last_name'].required = True
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', )
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+
+class ConnectionForm_ZeroTier(ModelForm):
+    class Meta:
+        model = ZeroTierConnection
+        exclude = ['type', 'active', 'user']
+
+class ConnectionForm_VXLAN(ModelForm):
+    class Meta:
+        model = VXLANConnection
+        exclude = ['type', 'active', 'user']
+    
+    widgets = {
+            'asn': forms.IntegerField(label='Registration Number', widget=forms.TextInput())
+        }
+
+class ConnectionForm_GRETAP(ModelForm):
+    class Meta:
+        model = GRETAPConnection
+        exclude = ['type', 'active', 'user']
+

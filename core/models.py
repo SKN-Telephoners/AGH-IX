@@ -1,12 +1,10 @@
 from __future__ import unicode_literals
 
-from abc import ABC, abstractmethod
 from uuid import uuid4
+from polymorphic.models import PolymorphicModel
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 from core.zerotier import Zerotier_API
 
@@ -14,53 +12,28 @@ from core.zerotier import Zerotier_API
 class User(AbstractUser):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
+class BaseConnection(PolymorphicModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField(max_length=200)
-    name = models.CharField(max_length=25)
-    surname = models.CharField(max_length=25)
-    bio = models.TextField(max_length=500, blank=True)
+    CONNECTION_TYPE=[
+        ('zerotier', 'ZeroTier'),
+        ('gretap', 'GRETAP'),
+        ('vxlan', 'VXLAN')
+    ]
 
-
-@receiver(post_save, sender=User)
-def update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-    instance.profile.save()
-
-
-class BaseConnection(ABC):
-    @abstractmethod
-    def __init__(self, asn, type, description):
-        self.asn: str = asn
-        self.type: str = type
-        self.description: str = description
-
-    @abstractmethod
-    def connect(self) -> str:
-        pass
-
-    @abstractmethod
-    def disconnect(self) -> None:
-        pass
-
-    @abstractmethod
-    def get_ip(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_status(self) -> str:
-        pass
-
+    STATE=[
+        ('connected', 'connected'),
+        ('disconnected', 'disconnected'),
+    ]
+    asn = models.IntegerField()
+    type = models.CharField(choices=CONNECTION_TYPE, max_length=10)
+    description = models.CharField(max_length=100, blank=True)
+    active = models.CharField(choices=STATE, max_length=14, default='disconnected', blank=True)
 
 class ZeroTierConnection(BaseConnection):
-    def __init__(self, asn, address):
-        self.address = address
-        self.zt_api: Zerotier_API = Zerotier_API.get_instance()
-        type = "ZeroTier"
-        super().__init__(asn, type)
-    
+    zerotier_address = models.CharField(max_length=10)
+    zt_api = Zerotier_API()
+
     def connect(self) -> str:
         self.zt_api.post_node(self.address)
         return self.get_ips()[0]
@@ -77,6 +50,7 @@ class ZeroTierConnection(BaseConnection):
         return response["config"]["authorized"]
 
 class GRETAPConnection(BaseConnection):
+    ip_address = models.GenericIPAddressField()
     def connect(self):
         pass
 
@@ -87,6 +61,7 @@ class GRETAPConnection(BaseConnection):
         pass
 
 class VXLANConnection(BaseConnection):
+    ip_address = models.GenericIPAddressField()
     def connect(self):
         pass
 
