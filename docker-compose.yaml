@@ -1,6 +1,20 @@
 version: "3.9"
    
 services:
+  zerotier:
+    image: dec0dos/zerotier-controller:latest
+    container_name: zerotier-controller
+    build:
+      context: .
+      dockerfile: ./docker/zerotier/Dockerfile
+    restart: unless-stopped
+    volumes:
+      - controller_data:/var/lib/zerotier-one
+    expose:
+      - "9993/tcp"
+    ports:
+      - "9993:9993/udp"
+
   db:
     image: postgres:14.2-alpine
     volumes:
@@ -16,10 +30,12 @@ services:
     environment:
       - SMTP_SERVER=localhost
       - SERVER_HOSTNAME=localhost
+      
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
-    network_mode: "host"
+    volumes:
+      - controller_data:/var/lib/zerotier-one
     volumes:
       - .:/code
     ports:
@@ -33,3 +49,7 @@ services:
     depends_on:
       - db
       - postfix
+      - zerotier
+
+volumes:
+  controller_data:
