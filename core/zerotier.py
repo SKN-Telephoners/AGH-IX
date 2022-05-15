@@ -32,6 +32,9 @@ class Zerotier_API(object):
 
     def get_local_network(self):
         return self.request_local(f'/network/{self.prod_network}').json()
+    
+    def get_local_did(self):
+        return self.status()["address"]
 
     def get_peer(self,ndid):
         return self.request_local(f'/peer/{ndid}').json()
@@ -80,3 +83,7 @@ class Zerotier_API(object):
 
         payload = json.dumps(template)
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
+    
+    def create_default_network(self):
+        return requests.post("http://localhost:9993/controller/network/"+str(self.get_local_did())+"210645", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.10", "ipRangeEnd": "10.21.37.254"}], "routes": [{"target": "10.21.37.1/24", "via": null}], "v4AssignMode": "zt", "private": true }')
+
