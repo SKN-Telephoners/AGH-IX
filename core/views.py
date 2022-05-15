@@ -41,6 +41,7 @@ def add_connection(request):
             obj.user = request.user
             obj.type = type
             obj.save()
+            obj.connect()
             return redirect('network')
             
     match type:

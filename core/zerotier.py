@@ -55,13 +55,14 @@ class Zerotier_API(object):
         "hidden": False,
         "name": "generic name",
         "description": "generic description",
+        "authorized": True,
         "config": {
             "activeBridge": False,
             "authorized": True,
             "capabilities": [
                 0
             ],
-            "ipAssignments": ["0.0.0.0"],
+            "ipAssignments": [],
             "noAutoAssignIps": False,
             "tags": [
                 [
@@ -70,9 +71,10 @@ class Zerotier_API(object):
             ]
         }
     }
-
-    def post_node(self, ndid):
-        return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=json.dumps(self.template)).json()
+    def post_node_connect(self, ndid):
+        template = self.template
+        payload = json.dumps(template)
+        return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
 
     def post_node(self, ndid, active_bridge, authorized, ip_address, no_auto_assign):
         template = self.template
