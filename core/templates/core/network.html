@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {{ type }}
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Type</th>
+        <th scope="col">ASN</th>
+        <th scope="col">ZeroTier Address</th>
+        <th scope="col">IP Address</th>
+        <th scope="col">Description</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for connection in network %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ connection.type }}</td>
+                <td>{{ connection.asn }}</td>
+                <td>{{ connection.zerotier_address|default_if_none:"-" }}</td>
+                <td>{{ connection.ip_address|default_if_none:"-" }}</td>
+                <td>{{ connection.description }}</td>
+                <td>{{ connection.active }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+  <form action=" {% url 'add_connection' %}" method="get">
+    <div class="d-flex justify-content-center">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="type" id="inlineRadio1" value="zerotier" checked>
+        <label class="form-check-label" for="inlineRadio1">ZeroTier</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="type" id="inlineRadio2" value="vxlan">
+        <label class="form-check-label" for="inlineRadio2">VXLAN</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="type" id="inlineRadio3" value="gretap" disabled>
+        <label class="form-check-label" for="inlineRadio3">GRETAP</label>
+      </div>
+    </div>
+    <div class="d-flex justify-content-center">
+      <input class="btn btn-success" type="submit" value="Add Connection" >
+    </div>
+  </form>
+{% endblock %}

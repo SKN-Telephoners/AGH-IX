@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <h2>Add Connection</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button  type="submit"  class="btn btn-success">Create</button>
+    <a href="{% url 'network' %}"  type="submit"  class="btn btn-danger">Cancel</a>
+  </form>
+{% endblock %}

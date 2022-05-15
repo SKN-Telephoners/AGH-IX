@@ -25,6 +25,8 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - ZEROTIER_API_KEY=${ZEROTIER_API_KEY}
+      - ZEROTIER_NETWORK=${ZEROTIER_NETWORK}
     depends_on:
       - db
       - postfix
