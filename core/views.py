@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from core.models import User, BaseConnection
 from core.tokens import account_activation_token
+from core.zerotier import Zerotier_API
 
 get_user_model()
 
@@ -24,7 +25,9 @@ def network(request):
     for connection in network:
         connection.active = "connected" if connection.is_connected() else "disconnected"
     
-    return render(request, 'core/network.html', {'network': network})
+    zt = Zerotier_API()
+    host_network = zt.prod_network
+    return render(request, 'core/network.html', {'network': network, 'host_network': host_network})
 
 @login_required
 def add_connection(request):

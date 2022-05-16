@@ -8,8 +8,6 @@ from django.db import models
 
 from core.zerotier import Zerotier_API
 
-ONLINE_THRESHOLD = 60
-
 class User(AbstractUser):
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 

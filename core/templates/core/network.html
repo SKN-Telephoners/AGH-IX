@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  {{ type }}
   <table class="table table-bordered">
     <thead>
       <tr>
@@ -47,4 +46,11 @@
       <input class="btn btn-success" type="submit" value="Add Connection" >
     </div>
   </form>
+  <div class="card border-info mb-3 text-center" style="max-width: 25rem;">
+    <div class="card-header">Connect using ZeroTier CLI</div>
+    <div class="card-body">
+      <h5 class="card-title">How to connect</h5>
+      <p class="card-text">sudo zerotier-cli join {{ host_network }}</p>
+    </div>
+  </div>
 {% endblock %}
