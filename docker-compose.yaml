@@ -4,6 +4,8 @@ services:
   zerotier:
     image: dec0dos/zerotier-controller:latest
     container_name: zerotier-controller
+    volumes:
+      - controller_data:/var/lib/zerotier-one
     secrets:
       - source: zerotier_token
         target: /var/lib/zerotier-one/authtoken.secret
@@ -46,15 +48,35 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - ZEROTIER_API_KEY=${ZEROTIER_API_KEY}
-      - ZEROTIER_NETWORK=${ZEROTIER_NETWORK}
     depends_on:
       - db
       - postfix
       - zerotier
+  zero-ui:
+    image: dec0dos/zero-ui:latest
+    container_name: zu-main
+    restart: unless-stopped
+    depends_on:
+      - zerotier
+    volumes:
+      - controller_data:/var/lib/zerotier-one
+      - zero-ui_data:/app/backend/data
+    secrets:
+      - source: zerotier_token
+        target: /var/lib/zerotier-one/authtoken.secret
+    environment:
+      - ZU_CONTROLLER_ENDPOINT=http://zerotier:9993/
+      - ZU_SECURE_HEADERS=true
+      - ZU_DEFAULT_USERNAME=admin
+      - ZU_DEFAULT_PASSWORD=W9dJcn8j4YUVJs5S
+    expose:
+      - "4000"
+    ports:
+    - "4000:4000"
 
 volumes:
   controller_data:
+  zero-ui_data:
 
 
 secrets:

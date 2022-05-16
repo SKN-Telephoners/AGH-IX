@@ -11,6 +11,8 @@ class Zerotier_API(object):
         self.device_list = {}
         if len(self.local_networks()) == 0:
             self.prod_network = self.create_default_network()["id"]
+        else:
+            self.prod_network = self.local_networks()[0]
         self.device_count = None
 
 
@@ -24,7 +26,7 @@ class Zerotier_API(object):
         return self.request_local("/status").json()
 
     def local_networks(self):
-        return self.request_local("/network").json()
+        return self.request_local("/controller/network").json()
 
     def peers(self):
         return self.request_local("/peer").json()
@@ -33,7 +35,7 @@ class Zerotier_API(object):
         return self.request_local("/controller").json()
 
     def get_local_network(self):
-        return self.request_local(f'/network/{self.prod_network}').json()
+        return self.request_local(f'/controller/network/{self.prod_network}').json()
     
     def get_local_did(self):
         return self.status()["address"]
@@ -90,5 +92,5 @@ class Zerotier_API(object):
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
     
     def create_default_network(self):
-        return requests.post("http://zerotier:9993/controller/network/"+str(self.get_local_did())+"210645", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.10", "ipRangeEnd": "10.21.37.254"}], "routes": [{"target": "10.21.37.1/24", "via": null}], "v4AssignMode": "zt", "private": true }').json()
+        return requests.post("http://zerotier:9993/controller/network/"+str(self.get_local_did())+"______", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.10", "ipRangeEnd": "10.21.37.254"}], "routes": [{"target": "10.21.37.1/24", "via": null}], "v4AssignMode": "zt", "private": true }').json()
 
