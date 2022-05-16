@@ -44,8 +44,15 @@
       </nav>
     </header>
     <main>
-      {% block content %}
-      {% endblock %}
+      <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            {% block content %}
+            {% endblock %}
+          </div>
+        </div>
+      </div>
+      
     </main>
   </body>
 </html>

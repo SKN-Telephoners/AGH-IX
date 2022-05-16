@@ -42,15 +42,17 @@
         <label class="form-check-label" for="inlineRadio3">GRETAP</label>
       </div>
     </div>
+    <br>
     <div class="d-flex justify-content-center">
       <input class="btn btn-success" type="submit" value="Add Connection" >
     </div>
+    <br>
   </form>
-  <div class="card border-info mb-3 text-center" style="max-width: 25rem;">
+  <div class="card border-info text-center mx-auto" style="max-width: 25rem;">
     <div class="card-header">Connect using ZeroTier CLI</div>
     <div class="card-body">
       <h5 class="card-title">How to connect</h5>
-      <p class="card-text">sudo zerotier-cli join {{ host_network }}</p>
+      <p class="card-text"><mark>sudo zerotier-cli join {{ host_network }}</mark></p>
     </div>
   </div>
 {% endblock %}
