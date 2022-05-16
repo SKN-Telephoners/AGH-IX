@@ -13,6 +13,7 @@ class User(AbstractUser):
 
 class BaseConnection(PolymorphicModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    assignedIP = models.GenericIPAddressField(null=True, blank=True)
 
     CONNECTION_TYPE=[
         ('zerotier', 'ZeroTier'),
@@ -41,11 +42,11 @@ class ZeroTierConnection(BaseConnection):
 
     def get_ip(self) -> str:
         response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)
-        print(response)
         try:
-            return response["ipAssignments"][0]
-        except KeyError:
-            return ""
+            self.assignedIP = response["ipAssignments"][0]
+        except (IndexError, KeyError):
+            pass
+
 
     def get_status(self) -> bool:
         response: dict = self.zt_api.get_controller_network_member(self.zerotier_address)

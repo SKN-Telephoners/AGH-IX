@@ -24,6 +24,7 @@ def network(request):
     network = BaseConnection.objects.filter(user=request.user)
     for connection in network:
         connection.active = "connected" if connection.is_connected() else "disconnected"
+        connection.get_ip()
     
     zt = Zerotier_API()
     host_network = zt.prod_network

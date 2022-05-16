@@ -19,12 +19,12 @@ class SignUpForm(UserCreationForm):
 class ConnectionForm_ZeroTier(ModelForm):
     class Meta:
         model = ZeroTierConnection
-        exclude = ['type', 'active', 'user']
+        exclude = ['type', 'active', 'user', 'assignedIP']
 
 class ConnectionForm_VXLAN(ModelForm):
     class Meta:
         model = VXLANConnection
-        exclude = ['type', 'active', 'user']
+        exclude = ['type', 'active', 'user', 'assignedIP']
     
     widgets = {
             'asn': forms.IntegerField(label='Registration Number', widget=forms.TextInput())
@@ -33,5 +33,5 @@ class ConnectionForm_VXLAN(ModelForm):
 class ConnectionForm_GRETAP(ModelForm):
     class Meta:
         model = GRETAPConnection
-        exclude = ['type', 'active', 'user']
+        exclude = ['type', 'active', 'user', 'assignedIP']
 
