@@ -10,6 +10,7 @@
         <th scope="col">ZeroTier Address</th>
         <th scope="col">IP Address</th>
         <th scope="col">Description</th>
+        <th scope="col">Assigned IP</th>
         <th scope="col">Status</th>
       </tr>
     </thead>
@@ -22,6 +23,7 @@
                 <td>{{ connection.zerotier_address|default_if_none:"-" }}</td>
                 <td>{{ connection.ip_address|default_if_none:"-" }}</td>
                 <td>{{ connection.description }}</td>
+                <td>{{ connection.assignedIP|default_if_none:"-" }}</td>
                 <td>{{ connection.active }}</td>
             </tr>
         {% endfor %}
