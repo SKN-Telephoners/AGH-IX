@@ -69,7 +69,7 @@ Go to the project directory
   cd AGH-IX
 ```
 
-Init DB
+Init DB, stop the container with `ctrl+c` when the initialization ends
 ```bash
 docker compose run db
 ```
