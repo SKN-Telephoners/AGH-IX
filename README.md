@@ -105,7 +105,7 @@ Start the virtual exchange point
 - Due to security concerns you want to add additional capabilities to IX you want to establish blacklist for devices in our IXP
 - Create a place in webgui where you can add devices to blacklist. It should be accessible **only by superuser**
 - How you do this is up to you. Only front-end implementation is required
-- send screenshot blacklist with some records
+- send screenshot of your blacklist form
 - send screenshot of the superuser check in your code
 
 ## Task 3
