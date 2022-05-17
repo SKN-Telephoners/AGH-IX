@@ -55,7 +55,7 @@ Please adhere to this project's `code of conduct`.
 
 **Server:** Python, Django
 
-## Run Locally
+## Run Locally for the first time
 
 Clone the project
 
@@ -69,10 +69,24 @@ Go to the project directory
   cd AGH-IX
 ```
 
-Start the virtual exchange point
-
+Init DB
 ```bash
-  docker-compose up -d
+docker compose run db
+```
+
+Migrate DB schema
+```
+docker compose run web python manage.py migrate
+```
+
+(Optional) Create superuser
+```bash
+docker compose run web python manage.py createsuperuser
+```
+
+Start the virtual exchange point
+```bash  
+  docker compose up
 ```
 
 ## Screenshots
@@ -81,7 +95,7 @@ Start the virtual exchange point
 
 
 
-## Task 1
+## Task 1 (group of 3 people)
 - **REQUIREMENTS** to run: docker, docker-compose
 - Create AGH-IX Server instance, use command in **Run Localy** section and configure it to run properly
 - Have two of your teammates establish connection with IX and test connection between them via ping
@@ -89,12 +103,14 @@ Start the virtual exchange point
 
 ## Task 2
 - Due to security concerns you want to add additional capabilities to IX you want to establish blacklist for devices in our IXP
-- Create a place in webgui where you can add devices to blacklist
-- How you do this is up to you
-- send screenshot of the blacklist you've created
+- Create a place in webgui where you can add devices to blacklist. It should be accessible **only by superuser**
+- How you do this is up to you. Only front-end implementation is required
+- send screenshot blacklist with some records
+- send screenshot of the superuser check in your code
 
 ## Task 3
-- With newly created web gui feature you want to create logic behind this blacklist
-- Implement logic, see that you can use our implementation of zerotier API to deauthorise devices 
-- see **/core/zerotier.py**
-- send screnshot of your working blacklist
+- With newly created web gui feature you want to create logic behind this blacklist. The blacklist should be saved to the DB
+- Implement logic - prevent adding hosts that are present on the blacklist **and** deauthorize existing hosts
+- see **/core/zerotier.py** for deauthorization
+- remember to migrate your db with `docker compose run web python manage.py makemigrations` and `docker compose run web python manage.py migrate` after adding new fields in models.py
+- send screnshots of your code
