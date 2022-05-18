@@ -91,7 +91,8 @@ Start the virtual exchange point
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](https://raw.githubusercontent.com/SKN-Telephoners/AGH-IX/main/unknjkown.png)
+![App Screenshot](https://raw.githubusercontent.com/SKN-Telephoners/AGH-IX/main/unknown.png)
 
 
 
