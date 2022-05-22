@@ -9,6 +9,46 @@ Project AGH-IX goal is to create first in Poland automatic virtual internet exch
 - [@dobrowolski_dominik](https://github.com/ddominet)
 - [@PiotrWodecki](https://github.com/PiotrWodecki)
 
+## Run locally for the first time
+
+1. Clone the project
+
+```bash
+  git clone https://github.com/SKN-Telephoners/AGH-IX.git
+```
+
+1. Go to the project directory
+
+```bash
+  cd AGH-IX
+```
+
+1. Create a token in `zerotier.token` file
+
+Init DB, stop the container with `ctrl+c` when the initialization ends
+```bash
+docker compose run db
+```
+
+1. Migrate DB schema
+```
+docker compose run web python manage.py migrate
+```
+
+1. (Optional) Create superuser
+```bash
+docker compose run web python manage.py createsuperuser
+```
+
+1. Start the virtual exchange point
+```bash  
+  docker compose up
+```
+
+## Run locally
+```bash
+docker compose up
+```
 
 ## Roadmap
 
@@ -28,8 +68,6 @@ Project AGH-IX goal is to create first in Poland automatic virtual internet exch
 
 - Notify users by mail if their session is down, if they violate rules - [❌tbd]
 
-
-
 ## Contributing
 
 Contributions are always welcome!
@@ -45,73 +83,12 @@ Please adhere to this project's `code of conduct`.
 ## Acknowledgements
 
  - [arouteserver](https://github.com/pierky/arouteserver)
- - [Django](https://github.com/django/django)
+ - [ZeroUI](https://github.com/dec0dOS/zero-ui)
+
 ## License
 
 [GPL3](https://www.gnu.org/licenses/gpl-3.0.txt)
 
-
-## Tech Stack
-
-**Server:** Python, Django
-
-## Run Locally for the first time
-
-Clone the project
-
-```bash
-  git clone https://github.com/SKN-Telephoners/AGH-IX.git
-```
-
-Go to the project directory
-
-```bash
-  cd AGH-IX
-```
-
-Init DB, stop the container with `ctrl+c` when the initialization ends
-```bash
-docker compose run db
-```
-
-Migrate DB schema
-```
-docker compose run web python manage.py migrate
-```
-
-(Optional) Create superuser
-```bash
-docker compose run web python manage.py createsuperuser
-```
-
-Start the virtual exchange point
-```bash  
-  docker compose up
-```
-
 ## Screenshots
 
-![App Screenshot](https://raw.githubusercontent.com/SKN-Telephoners/AGH-IX/main/unknjkown.png)
-![App Screenshot](https://raw.githubusercontent.com/SKN-Telephoners/AGH-IX/main/unknown.png)
-
-
-
-## Task 1 (group of 3 people)
-- **REQUIREMENTS** to run: docker, docker-compose
-- Create AGH-IX Server instance, use command in **Run Localy** section and configure it to run properly
-- Have two of your teammates establish connection with IX and test connection between them via ping
-- send screenshot of the working ping between devices
-
-## Task 2
-- Due to security concerns you want to add additional capabilities to IX you want to establish blacklist for devices in our IXP
-- Create a place in webgui where you can add devices to blacklist. It should be accessible **only by superuser**
-- How you do this is up to you. Only front-end implementation is required
-- send screenshot of your blacklist form
-- send screenshot of the superuser check in your code
-
-## Task 3
-- With newly created web gui feature you want to create logic behind this blacklist. The blacklist should be saved to the DB
-- Implement logic - prevent adding hosts that are present on the blacklist **and** deauthorize existing hosts
-- see **/core/zerotier.py** for deauthorization
-- remember to migrate your db with `docker compose run web python manage.py makemigrations` and `docker compose run web python manage.py migrate` after adding new fields in models.py
-- send screnshots of your code
+![image](https://user-images.githubusercontent.com/44680063/169712695-70326768-c74d-48f6-81e2-3ac5cbe06bba.png)
