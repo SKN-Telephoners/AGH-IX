@@ -98,5 +98,5 @@ class Zerotier_API(object):
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
     
     def create_default_network(self):
-        return requests.post("http://zerotier:9993/controller/network/"+str(self.get_local_did())+"______", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "192.168.192.1", "ipRangeEnd": "192.168.192.254"}], "routes": [{"target": "192.168.192.0/24", "via": null}], "v4AssignMode": "zt", "private": true }').json()
+        return requests.post("http://zerotier:9993/controller/network/"+str(self.get_local_did())+"______", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.1", "ipRangeEnd": "10.21.29.254"}], "routes": [{"target": "10.21.36.0/22", "via": null}], "v4AssignMode": "zt", "private": true }').json()
 
