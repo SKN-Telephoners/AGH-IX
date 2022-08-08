@@ -1,7 +1,7 @@
 import json
-import os
-from django.forms import NullBooleanField
+
 import requests
+
 
 class Zerotier_API(object):
 
@@ -15,12 +15,11 @@ class Zerotier_API(object):
             self.prod_network = self.local_networks()[0]
         self.device_count = None
 
-
     def request_local(self, path, data=None):
-        if data == None:
-            return requests.get(self.local_api + path, headers={'X-ZT1-Auth':self.local_api_key})
+        if data is None:
+            return requests.get(self.local_api + path, headers={'X-ZT1-Auth': self.local_api_key})
         else:
-            return requests.post(self.local_api + path, headers={'X-ZT1-Auth':self.local_api_key}, data=data)
+            return requests.post(self.local_api + path, headers={'X-ZT1-Auth': self.local_api_key}, data=data)
 
     def status(self):
         return self.request_local("/status").json()
@@ -36,11 +35,11 @@ class Zerotier_API(object):
 
     def get_local_network(self):
         return self.request_local(f'/controller/network/{self.prod_network}').json()
-    
+
     def get_local_did(self):
         return self.status()["address"]
 
-    def get_peer(self,ndid):
+    def get_peer(self, ndid):
         return self.request_local(f'/peer/{ndid}').json()
 
     def list_controller_networks(self):
@@ -76,6 +75,7 @@ class Zerotier_API(object):
             ]
         }
     }
+
     def post_node_connect(self, ndid):
         template = self.template
         payload = json.dumps(template)
@@ -90,13 +90,14 @@ class Zerotier_API(object):
 
         payload = json.dumps(template)
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
-    
+
     def deauth(self, ndid):
         template = self.template
         template["authorized"] = False
         payload = json.dumps(template)
         return self.request_local(f'/controller/network/{self.prod_network}/member/{ndid}', data=payload).json()
-    
-    def create_default_network(self):
-        return requests.post("http://zerotier:9993/controller/network/"+str(self.get_local_did())+"______", headers={'X-ZT1-Auth':self.local_api_key}, data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.1", "ipRangeEnd": "10.21.29.254"}], "routes": [{"target": "10.21.36.0/22", "via": null}], "v4AssignMode": "zt", "private": true }').json()
 
+    def create_default_network(self):
+        return requests.post("http://zerotier:9993/controller/network/" + str(self.get_local_did()) + "______",
+                             headers={'X-ZT1-Auth': self.local_api_key},
+                             data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.1", "ipRangeEnd": "10.21.29.254"}], "routes": [{"target": "10.21.36.0/22", "via": null}], "v4AssignMode": "zt", "private": true }').json()

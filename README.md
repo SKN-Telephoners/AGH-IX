@@ -2,7 +2,9 @@
 
 ![Logo](https://raw.githubusercontent.com/ddominet/METIS-cluster/master/85414462_pazzddezd_logo.png)
 
-Project AGH-IX goal is to create first in Poland automatic virtual internet exchange point. It will allow it's users to establish BGP peering with themselves directly or via Route-Server. Operations of this IX will be completely automatic, with little to no interference from NOC operator.
+Project AGH-IX goal is to create first in Poland automatic virtual internet exchange point. It will allow its users to
+establish BGP peering with themselves directly or via Route-Server. Operations of this IX will be completely automatic,
+with little to no interference from NOC operator.
 
 ## Authors
 
