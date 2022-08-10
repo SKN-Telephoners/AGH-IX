@@ -4,6 +4,7 @@ from django.forms import NullBooleanField
 import requests
 import docker
 
+
 class Zerotier_API(object):
     def __init__(self):
 
@@ -115,7 +116,6 @@ class Zerotier_API(object):
         container = self.client.containers.get("zerotier-controller")
         container.exec_run("zerotier-cli leave " + str(self.prod_network))
         container.exec_run("zerotier-cli join " + str(self.prod_network))
-
 
     def join_default_network(self):
         self.local_did = self.get_local_did()
