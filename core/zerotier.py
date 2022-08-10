@@ -4,7 +4,6 @@ from django.forms import NullBooleanField
 import requests
 import docker
 
-
 class Zerotier_API(object):
     def __init__(self):
 
@@ -22,7 +21,6 @@ class Zerotier_API(object):
             self.prod_network = self.local_networks()[0]
 
         self.reset_local_zerotier_interface()
-
 
     def request_local(self, path, data=None):
         if data == None:
