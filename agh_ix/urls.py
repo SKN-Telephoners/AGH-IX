@@ -21,18 +21,40 @@ from django.urls import path
 from core import views as core_views
 
 urlpatterns = [
-    path('', core_views.home, name='home'),
-    path('login/', auth_views.LoginView.as_view(), name='login'),
-    path('logout/', auth_views.logout_then_login, name='logout'),
-    path('register/', core_views.register, name='register'),
-    path('network/', core_views.network, name='network'),
-    path('add_connection/', core_views.add_connection, name='add_connection'),
-    path('activate/<uidb64>/<token>', core_views.activate, name='activate'),
-    path('admin/', admin.site.urls),
-    path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
-    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
-    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path("", core_views.home, name="home"),
+    path("login/", auth_views.LoginView.as_view(), name="login"),
+    path("logout/", auth_views.logout_then_login, name="logout"),
+    path("register/", core_views.register, name="register"),
+    path("network/", core_views.network, name="network"),
+    path("add_connection/", core_views.add_connection, name="add_connection"),
+    path("activate/<uidb64>/<token>", core_views.activate, name="activate"),
+    path("admin/", admin.site.urls),
+    path(
+        "password_change/",
+        auth_views.PasswordChangeView.as_view(),
+        name="password_change",
+    ),
+    path(
+        "password_change/done/",
+        auth_views.PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
+    path(
+        "password_reset/", auth_views.PasswordResetView.as_view(), name="password_reset"
+    ),
+    path(
+        "password_reset/done/",
+        auth_views.PasswordResetDoneView.as_view(),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        auth_views.PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
 ]

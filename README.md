@@ -1,5 +1,9 @@
 # AGH-IX
 
+[![Build](https://github.com/SKN-Telephoners/AGH-IX/actions/workflows/docker-image.yml/badge.svg)](https://github.com/SKN-Telephoners/AGH-IX/actions/workflows/docker-image.yml)
+[![CodeQL](https://github.com/SKN-Telephoners/AGH-IX/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SKN-Telephoners/AGH-IX/actions/workflows/codeql-analysis.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ![Logo](https://raw.githubusercontent.com/ddominet/METIS-cluster/master/85414462_pazzddezd_logo.png)
 
 Project AGH-IX goal is to create first in Poland automatic virtual internet exchange point. It will allow its users to
