@@ -1,23 +1,33 @@
 import json
-
+import os
+from django.forms import NullBooleanField
 import requests
+import docker
+import time
 
 
 class Zerotier_API(object):
     def __init__(self):
+
+        self.network_api_key = "Basic YWdoaXg6SmFjZWtSemFzYQ=="
+        self.zerotierd_start()
+        self.zerotierd_start()
         self.local_api_key = str(
             open("/var/lib/zerotier-one/authtoken.secret", "r").read().split("\n", 1)[0]
         )
-        self.local_api = "http://zerotier:9993"
+        self.local_api = "http://172.32.0.1:9993"
         self.device_list = {}
         if len(self.local_networks()) == 0:
             self.prod_network = self.create_default_network()["id"]
+            self.join_default_network()
+            self.configure_default_network()
         else:
             self.prod_network = self.local_networks()[0]
-        self.device_count = None
+
+        self.reset_local_zerotier_interface()
 
     def request_local(self, path, data=None):
-        if data is None:
+        if data == None:
             return requests.get(
                 self.local_api + path, headers={"X-ZT1-Auth": self.local_api_key}
             )
@@ -33,6 +43,11 @@ class Zerotier_API(object):
 
     def local_networks(self):
         return self.request_local("/controller/network").json()
+
+    def get_interface_name(self):
+        return self.request_local(f"/network/{self.prod_network}").json()[
+            "portDeviceName"
+        ]
 
     def peers(self):
         return self.request_local("/peer").json()
@@ -100,6 +115,26 @@ class Zerotier_API(object):
             f"/controller/network/{self.prod_network}/member/{ndid}", data=payload
         ).json()
 
+    def reset_local_zerotier_interface(self):
+        self.zerotierd_start()
+        self.zerotier_join_leave_local_network("leave")
+        self.zerotier_join_leave_local_network("join")
+        time.sleep(3)
+        self.ifname = self.get_interface_name()
+        self.bridge_add_rm_interface("addif", "br2137", self.ifname)
+
+    def join_default_network(self):
+        self.zerotierd_start()
+        self.zerotier_join_leave_local_network("join")
+        time.sleep(3)
+        self.ifname = self.get_interface_name()
+        self.bridge_add("br2137")
+        print(self.ifname)
+        self.bridge_add_rm_interface("addif", "br2137", self.ifname)
+        self.local_did = self.get_local_did()
+        self.interface_on_off("br2137", "up")
+        self.post_node(self.local_did, True, True, "10.44.0.1", True)
+
     def deauth(self, ndid):
         template = self.template
         template["authorized"] = False
@@ -110,9 +145,72 @@ class Zerotier_API(object):
 
     def create_default_network(self):
         return requests.post(
-            "http://zerotier:9993/controller/network/"
+            "http://172.32.0.1:9993/controller/network/"
             + str(self.get_local_did())
             + "______",
             headers={"X-ZT1-Auth": self.local_api_key},
-            data='{"ipAssignmentPools": [{"ipRangeStart": "10.21.37.1", "ipRangeEnd": "10.21.29.254"}], "routes": [{"target": "10.21.36.0/22", "via": null}], "v4AssignMode": "zt", "private": true }',
+            data="{}",
         ).json()
+
+    def configure_default_network(self):
+        requests.post(
+            "http://172.32.0.1:9993/controller/network/" + str(self.prod_network),
+            headers={"X-ZT1-Auth": self.local_api_key},
+            data='{"ipAssignmentPools": [{"ipRangeStart": "10.44.128.1", "ipRangeEnd": "10.44.255.254"}], "routes": [{"target": "10.44.0.0/16", "via": null}], "v4AssignMode": "zt", "private": true }',
+        ).json()
+
+    def zerotierd_start(self):
+        url = "http://172.32.0.1:5000/commands/zerotierone"
+        payload = json.dumps({"force_unique_key": True})
+        headers = {
+            "Authorization": "Basic YWdoaXg6SmFjZWtSemFzYQ==",
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def zerotier_join_leave_local_network(self, state):
+        url = "http://172.32.0.1:5000/commands/zerotier"
+        payload = json.dumps(
+            {"args": [f"{state}", f"{self.prod_network}"], "force_unique_key": True}
+        )
+        headers = {
+            "Authorization": "Basic YWdoaXg6SmFjZWtSemFzYQ==",
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def interface_on_off(self, interface, state):
+        url = "http://172.32.0.1:5000/commands/ifconfig"
+        payload = json.dumps(
+            {"args": [f"{interface}", f"{state}"], "force_unique_key": True}
+        )
+        headers = {
+            "Authorization": "Basic YWdoaXg6SmFjZWtSemFzYQ==",
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def bridge_add(self, name):
+        url = "http://172.32.0.1:5000/commands/brctl"
+        payload = json.dumps({"args": ["addbr", f"{name}"], "force_unique_key": True})
+        headers = {
+            "Authorization": "Basic YWdoaXg6SmFjZWtSemFzYQ==",
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def bridge_add_rm_interface(self, command, brname, ifname):
+        url = "http://172.32.0.1:5000/commands/brctl"
+        payload = json.dumps(
+            {"args": [f"{command}", f"{brname}", f"{ifname}"], "force_unique_key": True}
+        )
+        headers = {
+            "Authorization": "Basic YWdoaXg6SmFjZWtSemFzYQ==",
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
