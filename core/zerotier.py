@@ -23,7 +23,6 @@ class Zerotier_API(object):
 
         self.reset_local_zerotier_interface()
 
-
     def request_local(self, path, data=None):
         if data == None:
             return requests.get(
@@ -117,7 +116,6 @@ class Zerotier_API(object):
         container = self.client.containers.get("zerotier-controller")
         container.exec_run("zerotier-cli leave " + str(self.prod_network))
         container.exec_run("zerotier-cli join " + str(self.prod_network))
-
 
     def join_default_network(self):
         self.local_did = self.get_local_did()
