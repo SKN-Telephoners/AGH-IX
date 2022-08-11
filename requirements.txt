@@ -6,4 +6,4 @@ requests==2.28.1
 django-polymorphic==3.1.0
 django-crispy-forms==1.14.0
 black==22.6.0
-docker
+docker==5.0.3
