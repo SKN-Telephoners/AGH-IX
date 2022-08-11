@@ -27,7 +27,7 @@ class Zerotier_API(object):
         self.reset_local_zerotier_interface()
 
     def request_local(self, path, data=None):
-        if data == None:
+        if data is None:
             return requests.get(
                 self.local_api + path, headers={"X-ZT1-Auth": self.local_api_key}
             )
