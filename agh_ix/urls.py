@@ -28,6 +28,7 @@ urlpatterns = [
     path("network/", core_views.network, name="network"),
     path("add_connection/", core_views.add_connection, name="add_connection"),
     path("activate/<uidb64>/<token>", core_views.activate, name="activate"),
+    path("profile", core_views.profile, name="profile"),
     path("admin/", admin.site.urls),
     path(
         "password_change/",
