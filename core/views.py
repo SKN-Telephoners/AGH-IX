@@ -125,3 +125,8 @@ def activate(request, uidb64, token):
         return render(request, "registration/activated.html")
     else:
         raise Http404
+
+
+@login_required
+def profile(request):
+    return render(request, "registration/profile.html")
