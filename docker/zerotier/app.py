@@ -31,7 +31,7 @@ def login_required(f):
     @functools.wraps(f)
     def decorator(*args, **kwargs):
         user = verify_login()
-        if not user == "aghix":
+        if "aghix" not in users:
             abort(Response("You are not logged in.", 401))
         return f(*args, **kwargs)
 
@@ -53,11 +53,6 @@ def verify_login():
     return auth.username()
 
 
-shell2http.register_command(
-    endpoint="saythis",
-    command_name="echo",
-    decorators=[login_required, logging_decorator],
-)
 shell2http.register_command(
     endpoint="brctl",
     command_name="brctl",
