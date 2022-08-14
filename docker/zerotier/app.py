@@ -30,7 +30,7 @@ def logging_decorator(f):
 def login_required(f):
     @functools.wraps(f)
     def decorator(*args, **kwargs):
-        user = verify_login()
+        users = verify_login()
         if "aghix" not in users:
             abort(Response("You are not logged in.", 401))
         return f(*args, **kwargs)
