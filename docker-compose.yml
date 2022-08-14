@@ -14,6 +14,8 @@ services:
     secrets:
       - source: zerotier_token
         target: /var/lib/zerotier-one/authtoken.secret
+      - source: network_token
+        target: /var/lib/zerotier-one/network.secret
     build:
       context: .
       dockerfile: ./docker/zerotier/Dockerfile
@@ -48,6 +50,11 @@ services:
         target: /var/lib/zerotier-one/authtoken.secret
         uid: '1001'
         gid: '1001'
+      - source: network_token
+        target: /var/lib/zerotier-one/network.secret
+        uid: '1001'
+        gid: '1001'
+
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -91,6 +98,8 @@ volumes:
 secrets:
     zerotier_token:
       file: ./zerotier.token
+    network_token:
+      file: ./network.token
 networks:
   ui-network:
     driver: bridge

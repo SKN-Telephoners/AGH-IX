@@ -1,13 +1,17 @@
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
 import functools
 from flask import Flask, request, abort, Response
 from flask_executor import Executor
 from flask_shell2http import Shell2HTTP
 import os
 
+
+network_api_key = str(
+    open("/var/lib/zerotier-one/network.secret", "r").read().split("\n", 1)[0]
+)
+
 users = {
-    "aghix": generate_password_hash("JacekRzasa"),
+    "aghix": network_api_key,
 }
 
 app = Flask(__name__)
@@ -44,7 +48,7 @@ shell2http = Shell2HTTP(app=app, executor=executor, base_url_prefix="/commands/"
 
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username), password):
+    if username in users and users.get(username, password):
         return username
 
 
