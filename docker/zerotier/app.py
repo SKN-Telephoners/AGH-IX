@@ -1,10 +1,10 @@
-from flask_httpauth import HTTPBasicAuth
 import functools
-from flask import Flask, request, abort, Response
-from flask_executor import Executor
-from flask_shell2http import Shell2HTTP
 import os
 
+from flask import Flask, request, abort, Response
+from flask_executor import Executor
+from flask_httpauth import HTTPBasicAuth
+from flask_shell2http import Shell2HTTP
 
 network_api_key = str(
     open("/var/lib/zerotier-one/network.secret", "r").read().split("\n", 1)[0]
@@ -34,8 +34,8 @@ def logging_decorator(f):
 def login_required(f):
     @functools.wraps(f)
     def decorator(*args, **kwargs):
-        users = verify_login()
-        if "aghix" not in users:
+        user = verify_login()
+        if user not in users:
             abort(Response("You are not logged in.", 401))
         return f(*args, **kwargs)
 
