@@ -1,10 +1,8 @@
 import json
-import os
-from django.forms import NullBooleanField
-import requests
-import docker
 import time
 from base64 import b64encode
+
+import requests
 
 
 class Zerotier_API(object):
