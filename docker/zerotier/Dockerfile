@@ -5,7 +5,7 @@ RUN echo "{\"settings\": {\"portMappingEnabled\": true,\"softwareUpdate\": \"dis
 RUN apk add --no-cache python3 py3-pip
 COPY ./requirements.txt /app/requirements.txt
 WORKDIR /app
-COPY . /app
+COPY app.py requirements.txt ./
 RUN pip3 install -r requirements.txt
 
 EXPOSE 9993/tcp

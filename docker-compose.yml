@@ -17,8 +17,7 @@ services:
       - source: network_token
         target: /var/lib/zerotier-one/network.secret
     build:
-      context: .
-      dockerfile: ./docker/zerotier/Dockerfile
+      context: ./docker/zerotier/
     restart: unless-stopped
 
   db:
