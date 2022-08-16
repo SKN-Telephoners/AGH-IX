@@ -1,0 +1,35 @@
+version: "3.9"
+   
+services:
+  zerotier:
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    image: test-app
+    container_name: test-app
+    volumes:
+      - controller_data:/var/lib/zerotier-one
+    secrets:
+      - source: zerotier_token
+        target: /var/lib/zerotier-one/authtoken.secret
+    build:
+      context: .
+      dockerfile: ./docker/zerotier/Dockerfile
+    restart: unless-stopped
+    expose:
+      - "9993/tcp"
+      - "5000/tcp"
+    ports:
+      - "9993:9993/udp"
+      - "5000:5000/tcp"
+
+volumes:
+  controller_data:
+  zero-ui_data:
+
+
+secrets:
+    zerotier_token:
+      file: ./zerotier.token
