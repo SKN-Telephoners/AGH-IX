@@ -129,4 +129,78 @@ def activate(request, uidb64, token):
 
 @login_required
 def profile(request):
-    return render(request, "registration/profile.html")
+    return render(request, "users/profile.html")
+
+
+@login_required
+def change_username(request):
+    try:
+        request.user.username = "grabi"
+        request.user.save()
+    except Exception:
+        raise Http404
+    return render(request, "users/profile.html")
+
+
+@login_required
+def change_email(request):
+    if request.method == "POST":
+        user = User.objects.get(username = request.user.username)
+        new_email = request.POST.get("new_email")
+        if new_email == request.user.email:
+            return render(request, "users/email_change.html", {"error": "It's already your email"})
+        if user.check_password(request.POST.get("password")):
+            #request.user.is_active = False
+            #request.user.save()
+            ### trza dodać uwierzytelnianie po mailu
+            current_site = get_current_site(request)
+            mail_subject = "Activate your AGH-IX account."
+            message = render_to_string(
+                "registration/acc_activate_email.html",
+                {
+                    "user": user,
+                    "domain": current_site.domain,
+                    "email": new_email,
+                    "uid": urlsafe_b64encode(force_bytes(user.uuid)).decode(),
+                    "token": account_activation_token.make_token(user),
+                },
+            )
+            try:
+                send_mail(
+                    mail_subject,
+                    message,
+                    EMAIL_HOST_USER,
+                    [new_email],
+                    fail_silently=False,
+                )
+            except SMTPRecipientsRefused:
+                pass
+
+            return render(request, "registration/confirm.html", {activate: ""})
+        else:
+            return render(request, "users/email_change.html", {"error": "Wrong password", "new_email": new_email})
+    return render(request, "users/email_change.html")
+
+
+@login_required
+def change_personality(request):
+    if request.method == "POST":
+        user = User.objects.get(username = request.user.username)
+        if user.check_password(request.POST.get("password")):
+            first_name = request.POST.get("new_first_name")
+            last_name = request.POST.get("new_last_name")
+            request.user.first_name = first_name
+            request.user.last_name = last_name
+            request.user.save()
+            return redirect(profile)
+        else:
+            return render(request, "users/personality_change.html", {"error": True})
+    return render(request, "users/personality_change.html")
+
+
+@login_required
+def del_user(request):
+    u = User.objects.get(username = request.user.username)
+    u.delete()
+    return render(request, 'registration/login.html')
+
