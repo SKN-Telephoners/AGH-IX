@@ -9,6 +9,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
+from django.contrib.messages import constants as messages
 
 from agh_ix.settings import EMAIL_HOST_USER
 from core.forms import (
@@ -40,6 +41,14 @@ def network(request):
     return render(
         request, "core/network.html", {"network": network, "host_network": host_network}
     )
+
+
+@login_required
+def delete_connection(request, ndid):
+    zt = Zerotier_API()
+    zt.deauth(ndid)
+    #zt.delet(ndid)
+    return redirect("network")
 
 
 @login_required
@@ -91,6 +100,7 @@ def register(request):
                 {
                     "user": user,
                     "domain": current_site.domain,
+                    "email": user.email,
                     "uid": urlsafe_b64encode(force_bytes(user.uuid)).decode(),
                     "token": account_activation_token.make_token(user),
                 },
@@ -112,7 +122,7 @@ def register(request):
     return render(request, "registration/register.html", {"form": form})
 
 
-def activate(request, uidb64, token):
+def activate(request, email, uidb64, token):
     try:
         uid = urlsafe_b64decode(uidb64).decode()
         user = get_object_or_404(User, uuid=uid)
@@ -120,6 +130,7 @@ def activate(request, uidb64, token):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
+        user.email = email
         user.save()
 
         return render(request, "registration/activated.html")
@@ -203,4 +214,3 @@ def del_user(request):
     u = User.objects.get(username = request.user.username)
     u.delete()
     return render(request, 'registration/login.html')
-
