@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="profile_info_div">
+        <div style="float: left; width: 50%">
+            <h5>User name</h5>
+        </div>
+        <div style="float: right; width: 50%">
+            <form>
+                <button type="submit" class="profile_info_button btn btn-primary" disabled>Edytuj</button>
+            </form>
+        </div>
+        <div>
+            {{ user.username }}
+        </div>
+    </div>
+    <br>
+    <div class="profile_info_div">
+        <div style="float: left; width: 50%">
+            <h5>Email</h5>
+        </div>
+        <div style="float: right; width: 50%">
+            <form action="{% url 'change_email' %}">
+                <button type="submit" class="profile_info_button btn btn-primary">Edytuj</button>
+            </form>
+        </div>
+        <div>
+            {{ user.email }}
+        </div>
+    </div>
+    <br>
+    <div class="profile_info_div">
+        <div style="float: left; width: 50%">
+            <h5>Personality</h5>
+        </div>
+        <div style="float: right; width: 50%">
+            <form action="{% url 'change_personality' %}">
+                <button type="submit" class="profile_info_button btn btn-primary">Edytuj</button>
+            </form>
+        </div>
+        <div>
+            {{ user.first_name }}
+            <br>
+            {{ user.last_name }}
+        </div>
+    </div>
+    <br><a href="{% url 'password_change' %}"  type="submit"  class="btn btn-primary">Change Password</a>
+    <br><br><a href="{% url 'del_user' %}"  type="submit"  class="btn btn-danger">Delete account</a>
+{% endblock %}
