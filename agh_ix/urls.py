@@ -29,14 +29,22 @@ urlpatterns = [
     path("add_connection/", core_views.add_connection, name="add_connection"),
     path("activate/<email>/<uidb64>/<token>", core_views.activate, name="activate"),
     path("profile/", core_views.profile, name="profile"),
-    path("delete_connection/<ndid>", core_views.delete_connection, name="delete_connection"),
+    path(
+        "delete_connection/<ndid>",
+        core_views.delete_connection,
+        name="delete_connection",
+    ),
     path("del_user/", core_views.del_user, name="del_user"),
     path("change_email/", core_views.change_email, name="change_email"),
-    path("change_personality/", core_views.change_personality, name="change_personality"),
+    path(
+        "change_personality/", core_views.change_personality, name="change_personality"
+    ),
     path("admin/", admin.site.urls),
     path(
         "password_change/",
-        auth_views.PasswordChangeView.as_view(template_name='users/password_change.html'),
+        auth_views.PasswordChangeView.as_view(
+            template_name="users/password_change.html"
+        ),
         name="password_change",
     ),
     path(
