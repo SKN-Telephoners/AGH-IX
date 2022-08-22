@@ -304,4 +304,3 @@ class Zerotier_API(object):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        
