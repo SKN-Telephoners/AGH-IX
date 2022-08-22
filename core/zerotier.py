@@ -41,7 +41,7 @@ class Zerotier_API(object):
     def request_local(self, path, data=None):
         if data is None:
             return requests.get(
-                self.local_api + path, headers={"X-ZT1-Auth": self.local_api_key}
+                self.local_api + path, headers={"X-ZT1-Auth": self.local_api_key}, timeout=5
             )
         else:
             return requests.post(
