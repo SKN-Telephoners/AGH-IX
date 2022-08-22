@@ -7,25 +7,36 @@ import requests
 
 class Zerotier_API(object):
     def __init__(self):
-        self.local_api = "http://172.32.0.1:9993"
+        self.local_api = "http://172.16.0.2:9993"
         self.local_api_key = str(
             open("/var/lib/zerotier-one/authtoken.secret", "r").read().split("\n", 1)[0]
         )
         self.network_api_key = "Basic " + str(
             open("/var/lib/zerotier-one/network.secret", "r").read().split("\n", 1)[0]
         )
-        time.sleep(0.2)
-        self.zerotierd_start()
-        time.sleep(0.5)
         self.device_list = {}
-        if len(self.local_networks()) == 0:
+        try:
+            self.local_networks()
+        except requests.RequestException:
+            self.namespace_start()
+            time.sleep(0.2)
             self.zerotierd_start()
-            self.prod_network = self.create_default_network()["id"]
-            self.join_default_network()
-            self.configure_default_network()
-        else:
-            self.prod_network = self.local_networks()[0]
-            self.reset_local_zerotier_interface()
+            time.sleep(0.5)
+            if len(self.local_networks()) == 0:
+                self.setup_openvswitch()
+                self.prod_network = self.create_default_network()["id"]
+                time.sleep(0.5)
+                self.join_default_network()
+                time.sleep(0.5)
+                self.configure_default_network()
+                self.setup_openvswitch()
+            else:
+                self.setup_openvswitch()
+                self.prod_network = self.local_networks()[0]
+                time.sleep(0.2)
+                self.reset_local_zerotier_interface()
+
+        self.prod_network = self.local_networks()[0]
 
     def request_local(self, path, data=None):
         if data is None:
@@ -117,33 +128,32 @@ class Zerotier_API(object):
         ).json()
 
     def reset_local_zerotier_interface(self):
-        self.zerotierd_start()
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.zerotier_join_leave_local_network("leave")
-        time.sleep(0.1)
-        self.zerotier_join_leave_local_network("join")
-        time.sleep(0.5)
-        self.ifname = self.get_interface_name()
-        time.sleep(0.1)
-        self.bridge_add_rm_interface("addif", "br2137", self.ifname)
-
-    def join_default_network(self):
-        self.zerotierd_start()
-        time.sleep(0.5)
-        self.zerotier_join_leave_local_network("leave")
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.zerotier_join_leave_local_network("join")
         time.sleep(0.2)
         self.ifname = self.get_interface_name()
-        self.bridge_add("br2137")
-        time.sleep(0.1)
+        time.sleep(0.2)
+        self.bridge_add()
+        time.sleep(0.2)
+        self.bridge_add_rm_interface("add-port", "br2137", self.ifname)
+
+    def join_default_network(self):
+        time.sleep(0.2)
+        self.zerotier_join_leave_local_network("leave")
+        time.sleep(0.2)
+        self.zerotier_join_leave_local_network("join")
+        time.sleep(0.2)
+        self.ifname = self.get_interface_name()
+        time.sleep(0.2)
+        self.bridge_add()
+        time.sleep(0.2)
         print(self.ifname)
-        self.bridge_add_rm_interface("addif", "br2137", self.ifname)
-        time.sleep(0.1)
+        self.bridge_add_rm_interface("add-port", "br2137", self.ifname)
+        time.sleep(0.2)
         self.local_did = self.get_local_did()
-        time.sleep(0.1)
-        self.interface_on_off("br2137", "up")
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.post_node(self.local_did, True, True, "10.44.0.1", True)
 
     def deauth(self, ndid):
@@ -156,7 +166,7 @@ class Zerotier_API(object):
 
     def create_default_network(self):
         return requests.post(
-            "http://172.32.0.1:9993/controller/network/"
+            "http://172.16.0.2:9993/controller/network/"
             + str(self.get_local_did())
             + "______",
             headers={"X-ZT1-Auth": self.local_api_key},
@@ -165,7 +175,7 @@ class Zerotier_API(object):
 
     def configure_default_network(self):
         requests.post(
-            "http://172.32.0.1:9993/controller/network/" + str(self.prod_network),
+            "http://172.16.0.2:9993/controller/network/" + str(self.prod_network),
             headers={"X-ZT1-Auth": self.local_api_key},
             data='{"ipAssignmentPools": [{"ipRangeStart": "10.44.128.1", "ipRangeEnd": "10.44.255.254"}], "routes": [{"target": "10.44.0.0/16", "via": null}], "v4AssignMode": "zt", "private": true }',
         ).json()
@@ -201,9 +211,9 @@ class Zerotier_API(object):
         print(response.text)
 
     def interface_on_off(self, interface, state):
-        url = "http://172.32.0.1:5000/commands/ifconfig"
+        url = "http://172.32.0.1:5000/commands/iplink"
         payload = json.dumps(
-            {"args": [f"{interface}", f"{state}"], "force_unique_key": True}
+            {"args": ["set", f"{interface}", f"{state}"], "force_unique_key": True}
         )
         headers = {
             "Authorization": "Basic {}".format(
@@ -216,9 +226,9 @@ class Zerotier_API(object):
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
-    def bridge_add(self, name):
-        url = "http://172.32.0.1:5000/commands/brctl"
-        payload = json.dumps({"args": ["addbr", f"{name}"], "force_unique_key": True})
+    def bridge_add(self):
+        url = "http://172.32.0.1:5000/commands/openvswitchbr"
+        payload = json.dumps({"force_unique_key": True})
         headers = {
             "Authorization": "Basic {}".format(
                 b64encode(bytes("aghix:{self.network_api_key}", "utf-8")).decode(
@@ -230,10 +240,10 @@ class Zerotier_API(object):
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
-    def bridge_add_rm_interface(self, command, brname, ifname):
-        url = "http://172.32.0.1:5000/commands/brctl"
+    def bridge_add_rm_interface(self, state, brname, ifname):
+        url = "http://172.32.0.1:5000/commands/openvswitch"
         payload = json.dumps(
-            {"args": [f"{command}", f"{brname}", f"{ifname}"], "force_unique_key": True}
+            {"args": [f"{state}", f"{brname}", f"{ifname}"], "force_unique_key": True}
         )
         headers = {
             "Authorization": "Basic {}".format(
@@ -243,5 +253,54 @@ class Zerotier_API(object):
             ),
             "Content-Type": "application/json",
         }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def namespace_start(self):
+        url = "http://172.32.0.1:5000/commands/namespace"
+        payload = json.dumps({"force_unique_key": True})
+        headers = {
+            "Authorization": "Basic {}".format(
+                b64encode(bytes("aghix:{self.network_api_key}", "utf-8")).decode(
+                    "ascii"
+                )
+            ),
+            "Content-Type": "application/json",
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def reset_zerotierd(self):
+        url = "http://172.32.0.1:5000/commands/resetzerotier"
+        payload = json.dumps(
+            {
+                "args": [f"{self.prod_network}", f"{self.get_interface_name()}"],
+                "force_unique_key": True,
+            }
+        )
+        headers = {
+            "Authorization": "Basic {}".format(
+                b64encode(bytes("aghix:{self.network_api_key}", "utf-8")).decode(
+                    "ascii"
+                )
+            ),
+            "Content-Type": "application/json",
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def setup_openvswitch(self):
+        url = "http://172.32.0.1:5000/commands/startopenswitch"
+        payload = json.dumps({"force_unique_key": True})
+        headers = {
+            "Authorization": "Basic {}".format(
+                b64encode(bytes("aghix:{self.network_api_key}", "utf-8")).decode(
+                    "ascii"
+                )
+            ),
+            "Content-Type": "application/json",
+        }
+
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
