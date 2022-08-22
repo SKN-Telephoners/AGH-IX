@@ -47,7 +47,6 @@ def network(request):
 def delete_connection(request, ndid):
     zt = Zerotier_API()
     zt.deauth(ndid)
-    # zt.delet(ndid)
     return redirect("network")
 
 
@@ -90,7 +89,7 @@ def register(request):
             user.is_active = False
             user.first_name = form.cleaned_data.get("first_name")
             user.last_surname = form.cleaned_data.get("last_name")
-            user.email = form.cleaned_data.get("email")
+            user.tmp_email = form.cleaned_data.get("email")
             user.save()
             current_site = get_current_site(request)
             mail_subject = "Activate your AGH-IX account."
@@ -100,7 +99,6 @@ def register(request):
                 {
                     "user": user,
                     "domain": current_site.domain,
-                    "email": user.email,
                     "uid": urlsafe_b64encode(force_bytes(user.uuid)).decode(),
                     "token": account_activation_token.make_token(user),
                 },
@@ -110,46 +108,40 @@ def register(request):
                     mail_subject,
                     message,
                     EMAIL_HOST_USER,
-                    [user.email],
+                    [user.tmp_email],
                     fail_silently=False,
                 )
             except SMTPRecipientsRefused:
                 pass
 
-            return render(request, "registration/confirm.html", {activate: ""})
+            return render(request, "registration/confirm.html", {activate: "", "message": "to complete the registration."})
     else:
         form = SignUpForm()
     return render(request, "registration/register.html", {"form": form})
 
 
-def activate(request, email, uidb64, token):
+def activate(request, uidb64, token):
     try:
         uid = urlsafe_b64decode(uidb64).decode()
         user = get_object_or_404(User, uuid=uid)
     except (TypeError, ValueError, OverflowError, user.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.email = email
+        if user.is_active:
+            message = "Your email was changed."
+        else:
+            message = "Now you can log in into your account."
+            user.is_active = True
+        user.email = user.tmp_email
         user.save()
 
-        return render(request, "registration/activated.html")
+        return render(request, "registration/activated.html", {"message": message})
     else:
         raise Http404
 
 
 @login_required
 def profile(request):
-    return render(request, "users/profile.html")
-
-
-@login_required
-def change_username(request):
-    try:
-        request.user.username = "grabi"
-        request.user.save()
-    except Exception:
-        raise Http404
     return render(request, "users/profile.html")
 
 
@@ -163,17 +155,15 @@ def change_email(request):
                 request, "users/email_change.html", {"error": "It's already your email"}
             )
         if user.check_password(request.POST.get("password")):
-            # request.user.is_active = False
-            # request.user.save()
-            ### trza dodać uwierzytelnianie po mailu
+            request.user.tmp_email = new_email
+            request.user.save()
             current_site = get_current_site(request)
-            mail_subject = "Activate your AGH-IX account."
+            mail_subject = "Change your AGH-IX account's email."
             message = render_to_string(
                 "registration/acc_activate_email.html",
                 {
                     "user": user,
                     "domain": current_site.domain,
-                    "email": new_email,
                     "uid": urlsafe_b64encode(force_bytes(user.uuid)).decode(),
                     "token": account_activation_token.make_token(user),
                 },
@@ -189,12 +179,12 @@ def change_email(request):
             except SMTPRecipientsRefused:
                 pass
 
-            return render(request, "registration/confirm.html", {activate: ""})
+            return render(request, "registration/confirm.html", {activate: "", "message": "to complete changing email."})
         else:
             return render(
                 request,
                 "users/email_change.html",
-                {"error": "Wrong password", "new_email": new_email},
+                {"error": "Wrong password"},
             )
     return render(request, "users/email_change.html")
 
@@ -217,6 +207,11 @@ def change_personality(request):
 
 @login_required
 def del_user(request):
-    u = User.objects.get(username=request.user.username)
-    u.delete()
-    return render(request, "registration/login.html")
+    if request.method == "POST":
+        user = User.objects.get(username=request.user.username)
+        if user.check_password(request.POST.get("password")):
+            user.delete()
+            return render(request, "registration/login.html")
+        else:
+            return render(request, "users/delete_account.html", {"error": True})
+    return render(request, "users/delete_account.html")
