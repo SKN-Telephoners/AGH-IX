@@ -1,22 +1,24 @@
 version: "3.9"
-   
 services:
   zerotier:
-    image: dec0dos/zerotier-controller:latest
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    network_mode: host
+    image: zerotier-controller
     container_name: zerotier-controller
     volumes:
       - controller_data:/var/lib/zerotier-one
     secrets:
       - source: zerotier_token
         target: /var/lib/zerotier-one/authtoken.secret
+      - source: network_token
+        target: /var/lib/zerotier-one/network.secret
     build:
-      context: .
-      dockerfile: ./docker/zerotier/Dockerfile
+      context: ./docker/zerotier/
     restart: unless-stopped
-    expose:
-      - "9993/tcp"
-    ports:
-      - "9993:9993/udp"
 
   db:
     image: postgres:14.2-alpine
@@ -26,12 +28,15 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - db-network
   postfix:
     image: adepasquale/postfix-catchall
     environment:
       - SMTP_SERVER=localhost
       - SERVER_HOSTNAME=localhost
-      
+    networks:
+      - service-network
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:80
@@ -44,6 +49,11 @@ services:
         target: /var/lib/zerotier-one/authtoken.secret
         uid: '1001'
         gid: '1001'
+      - source: network_token
+        target: /var/lib/zerotier-one/network.secret
+        uid: '1001'
+        gid: '1001'
+
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
@@ -52,6 +62,10 @@ services:
       - db
       - postfix
       - zerotier
+    networks:
+      - db-network
+      - service-network
+
   zero-ui:
     image: dec0dos/zero-ui:latest
     container_name: zu-main
@@ -65,20 +79,44 @@ services:
       - source: zerotier_token
         target: /var/lib/zerotier-one/authtoken.secret
     environment:
-      - ZU_CONTROLLER_ENDPOINT=http://zerotier:9993/
-      - ZU_SECURE_HEADERS=true
+      - ZU_CONTROLLER_ENDPOINT=http://172.30.0.1:9993/
+      - ZU_SECURE_HEADERS=false
       - ZU_DEFAULT_USERNAME=admin
       - ZU_DEFAULT_PASSWORD=W9dJcn8j4YUVJs5S
     expose:
       - "4000"
     ports:
     - "4000:4000"
+    networks:
+      - ui-network
 
 volumes:
   controller_data:
   zero-ui_data:
 
-
 secrets:
     zerotier_token:
       file: ./zerotier.token
+    network_token:
+      file: ./network.token
+networks:
+  ui-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24
+  db-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.31.0.0/24
+  service-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.32.0.0/24
+
+
