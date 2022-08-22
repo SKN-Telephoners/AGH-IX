@@ -15,11 +15,12 @@ class SignUpForm(UserCreationForm):
         self.fields["first_name"].required = True
         self.fields["last_name"].required = True
 
-    class Meta:
+        class Meta:
         model = User
         fields = (
             "username",
             "email",
+            "tmp_email",
             "first_name",
             "last_name",
             "password1",
