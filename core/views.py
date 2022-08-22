@@ -47,7 +47,7 @@ def network(request):
 def delete_connection(request, ndid):
     zt = Zerotier_API()
     zt.deauth(ndid)
-    #zt.delet(ndid)
+    # zt.delet(ndid)
     return redirect("network")
 
 
@@ -156,13 +156,15 @@ def change_username(request):
 @login_required
 def change_email(request):
     if request.method == "POST":
-        user = User.objects.get(username = request.user.username)
+        user = User.objects.get(username=request.user.username)
         new_email = request.POST.get("new_email")
         if new_email == request.user.email:
-            return render(request, "users/email_change.html", {"error": "It's already your email"})
+            return render(
+                request, "users/email_change.html", {"error": "It's already your email"}
+            )
         if user.check_password(request.POST.get("password")):
-            #request.user.is_active = False
-            #request.user.save()
+            # request.user.is_active = False
+            # request.user.save()
             ### trza dodać uwierzytelnianie po mailu
             current_site = get_current_site(request)
             mail_subject = "Activate your AGH-IX account."
@@ -189,14 +191,18 @@ def change_email(request):
 
             return render(request, "registration/confirm.html", {activate: ""})
         else:
-            return render(request, "users/email_change.html", {"error": "Wrong password", "new_email": new_email})
+            return render(
+                request,
+                "users/email_change.html",
+                {"error": "Wrong password", "new_email": new_email},
+            )
     return render(request, "users/email_change.html")
 
 
 @login_required
 def change_personality(request):
     if request.method == "POST":
-        user = User.objects.get(username = request.user.username)
+        user = User.objects.get(username=request.user.username)
         if user.check_password(request.POST.get("password")):
             first_name = request.POST.get("new_first_name")
             last_name = request.POST.get("new_last_name")
@@ -211,6 +217,6 @@ def change_personality(request):
 
 @login_required
 def del_user(request):
-    u = User.objects.get(username = request.user.username)
+    u = User.objects.get(username=request.user.username)
     u.delete()
-    return render(request, 'registration/login.html')
+    return render(request, "registration/login.html")
