@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Delete account</h2>
+    {% if error %}
+        <div class="alert alert-danger">
+            Wrong password
+        </div>
+    {% endif %}
+    <form method="post">
+        <div class="form-row">
+            <label for="password">Password:</label><br>
+            <input type="password" name="password" autocomplete="current-password" autofocus="" required="" id="password">
+        </div>
+        <div class="submit-row">
+            {% csrf_token %}
+            <br>
+            <input type="submit" value="Delete" class="default btn btn-success">
+        </div>
+    </form>
+
+{% endblock %}
