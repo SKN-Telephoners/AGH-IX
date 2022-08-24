@@ -114,7 +114,11 @@ def register(request):
             except SMTPRecipientsRefused:
                 pass
 
-            return render(request, "registration/confirm.html", {activate: "", "message": "to complete the registration."})
+            return render(
+                request,
+                "registration/confirm.html",
+                {activate: "", "message": "to complete the registration."},
+            )
     else:
         form = SignUpForm()
     return render(request, "registration/register.html", {"form": form})
@@ -179,7 +183,11 @@ def change_email(request):
             except SMTPRecipientsRefused:
                 pass
 
-            return render(request, "registration/confirm.html", {activate: "", "message": "to complete changing email."})
+            return render(
+                request,
+                "registration/confirm.html",
+                {activate: "", "message": "to complete changing email."},
+            )
         else:
             return render(
                 request,
