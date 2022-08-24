@@ -16,16 +16,16 @@ class SignUpForm(UserCreationForm):
         self.fields["last_name"].required = True
 
         class Meta:
-        model = User
-        fields = (
-            "username",
-            "email",
-            "tmp_email",
-            "first_name",
-            "last_name",
-            "password1",
-            "password2",
-        )
+            model = User
+            fields = (
+                "username",
+                "email",
+                "tmp_email",
+                "first_name",
+                "last_name",
+                "password1",
+                "password2",
+            )
 
 
 class ConnectionForm_ZeroTier(ModelForm):
