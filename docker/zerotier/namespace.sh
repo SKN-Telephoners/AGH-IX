@@ -12,14 +12,14 @@ source .env
 OUTBOUND_NIC=`ip route show to default | grep -Eo "dev\s*[[:alnum:]]+" | sed 's/dev\s//g'`
 if [ -d /home/test ]; then
     echo "-------------------------DETECTING PREVIOUS INSTALL!!----CLEANING-------------------------------------------"
-    iptables -t nat -D POSTROUTING -o ${OUTBOUND_NIC} -j MASQUERADE
-    iptables -D FORWARD -i ${VETH_HOST_SIDE_NIC} -o ${OUTBOUND_NIC} -j ACCEPT
-    iptables -D FORWARD -s 10.44.0.0/255.255.0.0 -d 172.16.0.0/255.255.255.0 -j DROP
-    iptables -D FORWARD -s 10.44.0.0/255.255.0.0 -d 0.0.0/0.0.0.0 -j ACCEPT
-    ip link del ${VETH_HOST_SIDE_NIC}
-    ip netns del ${NET_NAMESPACE}
-    rm -f /etc/netns/${NET_NAMESPACE}/resolv.conf
-    rmdir /etc/netns/${NET_NAMESPACE}
+    echo bye | iptables -t nat -D POSTROUTING -o ${OUTBOUND_NIC} -j MASQUERADE && echo Success. || echo Failure.
+    echo bye | iptables -D FORWARD -i ${VETH_HOST_SIDE_NIC} -o ${OUTBOUND_NIC} -j ACCEPT && echo Success. || echo Failure.
+    echo bye | iptables -D FORWARD -s 10.44.0.0/255.255.0.0 -d 172.16.0.0/255.255.255.0 -j DROP && echo Success. || echo Failure.
+    echo bye | iptables -D FORWARD -s 10.44.0.0/255.255.0.0 -d 0.0.0/0.0.0.0 -j ACCEPT && echo Success. || echo Failure.
+    echo bye | ip link del ${VETH_HOST_SIDE_NIC} && echo Success. || echo Failure.
+    echo bye | ip netns del ${NET_NAMESPACE} && echo Success. || echo Failure.
+    echo bye | rm -f /etc/netns/${NET_NAMESPACE}/resolv.conf && echo Success. || echo Failure.
+    echo bye | rmdir /etc/netns/${NET_NAMESPACE} && echo Success. || echo Failure.
     rm -r /home/test
 fi
 
