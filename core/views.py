@@ -67,7 +67,7 @@ def add_connection(request):
             obj.type = type
 
             fail = False
-            if ZeroTierConnection.objects.filter(asn=obj.asn).exists():
+            if BaseConnection.objects.filter(asn=obj.asn).exists():
                 messages.error(request, "This ASN is already in use")
                 fail = True
             if (
@@ -97,7 +97,12 @@ def add_connection(request):
                 obj.save()
                 obj.connect()
                 return redirect("network")
-
+        else:
+            return render(
+                request,
+                "core/add_connection.html",
+                {"form": form, "type": type, "message": form.errors},
+            )
     match type:
         case "zerotier":
             form = ConnectionForm_ZeroTier
