@@ -36,7 +36,7 @@ class BaseConnection(PolymorphicModel):
 
 
 class ZeroTierConnection(BaseConnection):
-    zerotier_address = models.CharField(max_length=10)
+    zerotier_address = models.C(max_length=10)
     zt_api = Zerotier_API()
 
     def connect(self):
@@ -100,3 +100,9 @@ class VXLANConnection(BaseConnection):
 
     def get_status(self):
         pass
+
+    def get_ip(self) -> None:
+        pass
+
+    def is_connected(self) -> bool:
+        return False

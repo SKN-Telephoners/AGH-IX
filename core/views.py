@@ -1,6 +1,7 @@
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from smtplib import SMTPRecipientsRefused
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
@@ -17,7 +18,8 @@ from core.forms import (
     ConnectionForm_GRETAP,
     ConnectionForm_VXLAN,
 )
-from core.models import User, BaseConnection
+from core.models import GRETAPConnection, User, BaseConnection, \
+    VXLANConnection, ZeroTierConnection
 from core.tokens import account_activation_token
 from core.zerotier import Zerotier_API
 
@@ -32,13 +34,15 @@ def home(request):
 def network(request):
     network = BaseConnection.objects.filter(user=request.user)
     for connection in network:
-        connection.active = "connected" if connection.is_connected() else "disconnected"
+        connection.active = "connected" if connection.is_connected() else \
+            "disconnected"
         connection.get_ip()
 
     zt = Zerotier_API()
     host_network = zt.prod_network
     return render(
-        request, "core/network.html", {"network": network, "host_network": host_network}
+        request, "core/network.html",
+        {"network": network, "host_network": host_network}
     )
 
 
@@ -58,9 +62,33 @@ def add_connection(request):
             obj = form.save(commit=False)
             obj.user = request.user
             obj.type = type
-            obj.save()
-            obj.connect()
-            return redirect("network")
+
+            fail = False
+            if ZeroTierConnection.objects.filter(asn=obj.asn).exists():
+                messages.error(request, "This ASN is already in use")
+                fail = True
+            if type == "zerotier" and ZeroTierConnection.objects.filter(
+                    zerotier_address=obj.zerotier_address).exists():
+                messages.error(request,
+                               "This ZeroTier address is already in use")
+                fail = True
+            elif type == "gretap" and GRETAPConnection.objects.filter(
+                    ip_address=obj.ip_address).exists() or \
+                    type == "vxlan" and VXLANConnection.objects.filter(
+                    ip_address=obj.ip_address).exists():
+                messages.error(request, "This IP address is already in use")
+                fail = True
+
+            if fail:
+                return render(
+                    request,
+                    "core/add_connection.html",
+                    {"form": form, "type": type},
+                )
+            else:
+                obj.save()
+                obj.connect()
+                return redirect("network")
 
     match type:
         case "zerotier":
@@ -69,7 +97,8 @@ def add_connection(request):
             form = ConnectionForm_GRETAP
         case "gretap":
             form = ConnectionForm_VXLAN
-    return render(request, "core/add_connection.html", {"form": form, "type": type})
+    return render(request, "core/add_connection.html",
+                  {"form": form, "type": type})
 
 
 def register(request):
