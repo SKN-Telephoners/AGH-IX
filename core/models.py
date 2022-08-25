@@ -70,10 +70,8 @@ class ZeroTierConnection(BaseConnection):
         )
         try:
             return (
-                response_network["vMajor"] != -1
-                and response_peer["latency"] != -1
-                and response_network["authorized"]
-            )
+                response_network["vMajor"] != -1 or response_peer["latency"] != -1
+            ) and response_network["authorized"]
         except KeyError:
             return False
 
