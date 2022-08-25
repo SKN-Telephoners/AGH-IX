@@ -9,6 +9,7 @@ services:
     network_mode: host
     image: zerotier-controller
     container_name: zerotier-controller
+    privileged: true
     volumes:
       - controller_data:/var/lib/zerotier-one
     secrets:
@@ -79,7 +80,7 @@ services:
       - source: zerotier_token
         target: /var/lib/zerotier-one/authtoken.secret
     environment:
-      - ZU_CONTROLLER_ENDPOINT=http://172.30.0.1:9993/
+      - ZU_CONTROLLER_ENDPOINT=http://172.16.0.2:9993/
       - ZU_SECURE_HEADERS=false
       - ZU_DEFAULT_USERNAME=admin
       - ZU_DEFAULT_PASSWORD=W9dJcn8j4YUVJs5S
