@@ -6,7 +6,9 @@
     <h2>Delete account</h2>
     {% if error %}
         <div class="alert alert-danger">
-            Wrong password
+            <ul class="m-0">
+                <li>Wrong password</li>
+            </ul>
         </div>
     {% endif %}
     <form method="post">
@@ -17,7 +19,7 @@
         <div class="submit-row">
             {% csrf_token %}
             <br>
-            <input type="submit" value="Delete" class="default btn btn-success">
+            <input type="submit" value="Delete" class="default btn btn-danger">
         </div>
     </form>
 
