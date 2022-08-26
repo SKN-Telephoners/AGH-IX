@@ -10,6 +10,7 @@ from core.zerotier import Zerotier_API
 
 
 class User(AbstractUser):
+    tmp_email = models.CharField(max_length=254)
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
 
@@ -70,10 +71,8 @@ class ZeroTierConnection(BaseConnection):
         )
         try:
             return (
-                response_network["vMajor"] != -1
-                and response_peer["latency"] != -1
-                and response_network["authorized"]
-            )
+                response_network["vMajor"] != -1 or response_peer["latency"] != -1
+            ) and response_network["authorized"]
         except KeyError:
             return False
 
