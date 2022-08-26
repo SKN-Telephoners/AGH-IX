@@ -89,7 +89,7 @@ def register(request):
             user.is_active = False
             user.first_name = form.cleaned_data.get("first_name")
             user.last_surname = form.cleaned_data.get("last_name")
-            user.tmp_email = form.cleaned_data.get("email")
+            user.email = form.cleaned_data.get("email")
             user.save()
             current_site = get_current_site(request)
             mail_subject = "Activate your AGH-IX account."
@@ -108,7 +108,7 @@ def register(request):
                     mail_subject,
                     message,
                     EMAIL_HOST_USER,
-                    [user.tmp_email],
+                    [user.email],
                     fail_silently=False,
                 )
             except SMTPRecipientsRefused:
@@ -132,11 +132,11 @@ def activate(request, uidb64, token):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
         if user.is_active:
+            user.email = user.tmp_email
             message = "Your email was changed."
         else:
-            message = "Now you can log in into your account."
             user.is_active = True
-        user.email = user.tmp_email
+            message = "Now you can log in into your account."
         user.save()
 
         return render(request, "registration/activated.html", {"message": message})
