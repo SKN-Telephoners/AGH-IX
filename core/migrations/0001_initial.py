@@ -70,6 +70,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
+                    "tmp_email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="new email address"
+                    ),
+                ),
+                (
                     "is_staff",
                     models.BooleanField(
                         default=False,
