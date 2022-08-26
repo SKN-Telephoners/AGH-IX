@@ -27,7 +27,7 @@ urlpatterns = [
     path("register/", core_views.register, name="register"),
     path("network/", core_views.network, name="network"),
     path("add_connection/", core_views.add_connection, name="add_connection"),
-    path("activate/<email>/<uidb64>/<token>", core_views.activate, name="activate"),
+    path("activate/<uidb64>/<token>", core_views.activate, name="activate"),
     path("profile/", core_views.profile, name="profile"),
     path(
         "delete_connection/<ndid>",
