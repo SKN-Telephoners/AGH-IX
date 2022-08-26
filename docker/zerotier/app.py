@@ -57,24 +57,44 @@ def verify_login():
     return auth.username()
 
 
-shell2http.register_command(
-    endpoint="brctl",
-    command_name="brctl",
+shell2http.register_command(  # do zmiany setup namespace
+    endpoint="namespace",
+    command_name="./namespace.sh",
     decorators=[login_required, logging_decorator],
 )
 shell2http.register_command(
-    endpoint="ifconfig",
-    command_name="ifconfig",
+    endpoint="iplink",
+    command_name="ip -n session link",
     decorators=[login_required, logging_decorator],
 )
 shell2http.register_command(
-    endpoint="zerotier",
-    command_name="zerotier-cli",
+    endpoint="openvswitch",
+    command_name="ip netns exec session ovs-vsctl",
+    decorators=[login_required, logging_decorator],
+)
+shell2http.register_command(
+    endpoint="openvswitchbr",
+    command_name="ip netns exec session ovs-vsctl add-br br2137",
     decorators=[login_required, logging_decorator],
 )
 shell2http.register_command(
     endpoint="zerotierone",
-    command_name="zerotier-one -d",
+    command_name="ip netns exec session zerotier-one /var/lib/zerotier-one",
+    decorators=[login_required, logging_decorator],
+)
+shell2http.register_command(
+    endpoint="zerotier",
+    command_name="ip netns exec session zerotier-cli -D/var/lib/zerotier-one ",
+    decorators=[login_required, logging_decorator],
+)
+shell2http.register_command(
+    endpoint="resetzerotier",
+    command_name="./zerotier_restartd.py",
+    decorators=[login_required, logging_decorator],
+)
+shell2http.register_command(
+    endpoint="startopenswitch",
+    command_name="./setup_openvswitch.py",
     decorators=[login_required, logging_decorator],
 )
 if __name__ == "__main__":
