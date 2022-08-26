@@ -14,7 +14,7 @@ class SignUpForm(UserCreationForm):
         self.fields["email"].required = True
         self.fields["first_name"].required = True
         self.fields["last_name"].required = True
-        
+
     class Meta:
         model = User
         fields = (
