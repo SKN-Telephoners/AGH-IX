@@ -6,10 +6,13 @@
     <h2>Changing personality</h2>
     {% if error %}
         <div class="alert alert-danger">
-            Wrong password
+            <ul class="m-0">
+                <li>Wrong password</li>
+            </ul>
         </div>
     {% endif %}
     <form method="post">
+        {{ form|crispy }}
         <div class="form-row">
             <label for="password">Password:</label><br>
             <input type="password" name="password" autocomplete="current-password" autofocus="" required="" id="password">
