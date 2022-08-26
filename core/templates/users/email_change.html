@@ -6,7 +6,9 @@
     <h2>Changing email</h2>
     {% if error %}
         <div class="alert alert-danger">
-            {{ error }}
+            <ul class="m-0">
+                <li>{{ error }}</li>
+            </ul>
         </div>
     {% endif %}
     <form method="post">
