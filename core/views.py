@@ -90,6 +90,7 @@ def register(request):
             user.first_name = form.cleaned_data.get("first_name")
             user.last_surname = form.cleaned_data.get("last_name")
             user.email = form.cleaned_data.get("email")
+            user.tmp_email = form.cleaned_data.get("email")
             user.save()
             current_site = get_current_site(request)
             mail_subject = "Activate your AGH-IX account."
@@ -219,7 +220,7 @@ def del_user(request):
         user = User.objects.get(username=request.user.username)
         if user.check_password(request.POST.get("password")):
             user.delete()
-            return render(request, "registration/login.html")
+            return redirect(request, "registration/login.html")
         else:
             return render(request, "users/delete_account.html", {"error": True})
     return render(request, "users/delete_account.html")
