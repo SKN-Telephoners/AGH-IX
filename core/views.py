@@ -220,7 +220,7 @@ def del_user(request):
         user = User.objects.get(username=request.user.username)
         if user.check_password(request.POST.get("password")):
             user.delete()
-            return redirect(request, "registration/login.html")
+            return redirect("login.html")
         else:
             return render(request, "users/delete_account.html", {"error": True})
     return render(request, "users/delete_account.html")
