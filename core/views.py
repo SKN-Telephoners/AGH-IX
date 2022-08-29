@@ -1,6 +1,7 @@
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from smtplib import SMTPRecipientsRefused
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
@@ -17,7 +18,13 @@ from core.forms import (
     ConnectionForm_ZeroTier,
     SignUpForm,
 )
-from core.models import User
+from core.models import (
+    GRETAPConnection,
+    User,
+    BaseConnection,
+    VXLANConnection,
+    ZeroTierConnection,
+)
 from core.tokens import account_activation_token
 from core.zerotier import Zerotier_API
 
@@ -64,6 +71,43 @@ def add_connection(request):
             obj.connect()
             return redirect("network")
 
+            fail = False
+            if BaseConnection.objects.filter(asn=obj.asn).exists():
+                messages.error(request, "This ASN is already in use")
+                fail = True
+            if (
+                type == "zerotier"
+                and ZeroTierConnection.objects.filter(
+                    zerotier_address=obj.zerotier_address
+                ).exists()
+            ):
+                messages.error(request, "This ZeroTier address is already in use")
+                fail = True
+            elif (
+                type == "gretap"
+                and GRETAPConnection.objects.filter(ip_address=obj.ip_address).exists()
+                or type == "vxlan"
+                and VXLANConnection.objects.filter(ip_address=obj.ip_address).exists()
+            ):
+                messages.error(request, "This IP address is already in use")
+                fail = True
+
+            if fail:
+                return render(
+                    request,
+                    "core/add_connection.html",
+                    {"form": form, "type": type},
+                )
+            else:
+                obj.save()
+                obj.connect()
+                return redirect("network")
+        else:
+            return render(
+                request,
+                "core/add_connection.html",
+                {"form": form, "type": type, "message": form.errors},
+            )
     match type:
         case "zerotier":
             form = ConnectionForm_ZeroTier
