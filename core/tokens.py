@@ -8,7 +8,6 @@ class TokenGenerator(PasswordResetTokenGenerator):
             six.text_type(user.uuid)
             + six.text_type(timestamp)
             + six.text_type(user.is_active)
-            + six.text_type(user.tmp_email)
         )
 
 
