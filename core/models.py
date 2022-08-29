@@ -15,7 +15,6 @@ class User(AbstractUser):
 
 
 class BaseConnection(PolymorphicModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     assignedIP = models.GenericIPAddressField(null=True, blank=True)
 
     CONNECTION_TYPE = [
@@ -34,6 +33,11 @@ class BaseConnection(PolymorphicModel):
     active = models.CharField(
         choices=STATE, max_length=14, default="disconnected", blank=True
     )
+
+
+class User(AbstractUser):
+    connections = models.ManyToManyField(BaseConnection)
+    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
 
 class ZeroTierConnection(BaseConnection):
