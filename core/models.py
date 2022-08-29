@@ -101,3 +101,9 @@ class VXLANConnection(BaseConnection):
 
     def get_status(self):
         pass
+
+    def get_ip(self) -> None:
+        pass
+
+    def is_connected(self) -> bool:
+        return False
