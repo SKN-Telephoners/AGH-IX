@@ -9,11 +9,6 @@ from polymorphic.models import PolymorphicModel
 from core.zerotier import Zerotier_API
 
 
-class User(AbstractUser):
-    tmp_email = models.CharField(max_length=254)
-    uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-
-
 class BaseConnection(PolymorphicModel):
     assignedIP = models.GenericIPAddressField(null=True, blank=True)
 
@@ -36,6 +31,7 @@ class BaseConnection(PolymorphicModel):
 
 
 class User(AbstractUser):
+    tmp_email = models.CharField(max_length=254)
     connections = models.ManyToManyField(BaseConnection)
     uuid = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
