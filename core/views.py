@@ -65,11 +65,6 @@ def add_connection(request):
             obj = form.save(commit=False)
             obj.user = request.user
             obj.type = type
-            obj.save()
-            user = User.objects.get(uuid=request.user.uuid)
-            user.connections.add(obj)
-            obj.connect()
-            return redirect("network")
 
             fail = False
             if BaseConnection.objects.filter(asn=obj.asn).exists():
@@ -100,6 +95,8 @@ def add_connection(request):
                 )
             else:
                 obj.save()
+                user = User.objects.get(uuid=request.user.uuid)
+                user.connections.add(obj)
                 obj.connect()
                 return redirect("network")
         else:
