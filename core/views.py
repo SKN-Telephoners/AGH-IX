@@ -12,12 +12,12 @@ from django.utils.encoding import force_bytes
 
 from agh_ix.settings import EMAIL_HOST_USER
 from core.forms import (
-    SignUpForm,
-    ConnectionForm_ZeroTier,
     ConnectionForm_GRETAP,
     ConnectionForm_VXLAN,
+    ConnectionForm_ZeroTier,
+    SignUpForm,
 )
-from core.models import User, BaseConnection
+from core.models import User
 from core.tokens import account_activation_token
 from core.zerotier import Zerotier_API
 
@@ -30,7 +30,7 @@ def home(request):
 
 @login_required
 def network(request):
-    network = BaseConnection.objects.filter(user=request.user)
+    network = User.objects.get(uuid=request.user.uuid).connections.all()
     for connection in network:
         connection.active = "connected" if connection.is_connected() else "disconnected"
         connection.get_ip()
@@ -59,6 +59,8 @@ def add_connection(request):
             obj.user = request.user
             obj.type = type
             obj.save()
+            user = User.objects.get(uuid=request.user.uuid)
+            user.connections.add(obj)
             obj.connect()
             return redirect("network")
 
