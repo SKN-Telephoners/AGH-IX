@@ -10,19 +10,19 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
-from django.contrib.messages import constants as messages
 
 from agh_ix.settings import EMAIL_HOST_USER
 from core.forms import (
-    SignUpForm,
-    ConnectionForm_ZeroTier,
+    ChangePersonalDataForm,
     ConnectionForm_GRETAP,
     ConnectionForm_VXLAN,
+    ConnectionForm_ZeroTier,
+    SignUpForm,
 )
 from core.models import (
+    BaseConnection,
     GRETAPConnection,
     User,
-    BaseConnection,
     VXLANConnection,
     ZeroTierConnection,
 )
@@ -242,17 +242,24 @@ def change_email(request):
 @login_required
 def change_personality(request):
     if request.method == "POST":
-        user = User.objects.get(username=request.user.username)
-        if user.check_password(request.POST.get("password")):
-            first_name = request.POST.get("new_first_name")
-            last_name = request.POST.get("new_last_name")
-            request.user.first_name = first_name
-            request.user.last_name = last_name
-            request.user.save()
-            return redirect(profile)
-        else:
-            return render(request, "users/personality_change.html", {"error": True})
-    return render(request, "users/personality_change.html")
+        form = ChangePersonalDataForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(username=request.user.username)
+            if user.check_password(form.cleaned_data.get("password")):
+                user.first_name = form.cleaned_data.get("first_name")
+                user.last_name = form.cleaned_data.get("last_name")
+                user.save()
+                return redirect(profile)
+            else:
+                messages.error(request, "Invalid password")
+        return render(
+            request,
+            "users/personality_change.html",
+            {"form": form, "message": form.errors},
+        )
+    else:
+        form = ChangePersonalDataForm()
+        return render(request, "users/personality_change.html", {"form": form})
 
 
 @login_required

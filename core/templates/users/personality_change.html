@@ -4,30 +4,10 @@
 
 {% block content %}
     <h2>Changing personality</h2>
-    {% if error %}
-        <div class="alert alert-danger">
-            <ul class="m-0">
-                <li>Wrong password</li>
-            </ul>
-        </div>
-    {% endif %}
     <form method="post">
         {{ form|crispy }}
-        <div class="form-row">
-            <label for="password">Password:</label><br>
-            <input type="password" name="password" autocomplete="current-password" autofocus="" required="" id="password">
-        </div>
-        <div class="form-row">
-            <label for="id_firs_name">New first name:</label><br>
-            <input name="new_first_name" id="id_firs_name">
-        </div>
-        <div class="form-row">
-            <label for="id_last_name">New last name:</label><br>
-            <input name="new_last_name" id="id_last_name">
-        </div>
         <div class="submit-row">
             {% csrf_token %}
-            <br>
             <input type="submit" value="Change my personality" class="default btn btn-success">
         </div>
     </form>

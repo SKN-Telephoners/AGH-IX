@@ -8,6 +8,17 @@ from core.models import GRETAPConnection, User, VXLANConnection, ZeroTierConnect
 get_user_model()
 
 
+class ChangePersonalDataForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "password"]
+        widgets = {
+            "first_name": forms.TextInput(),
+            "last_name": forms.TextInput(),
+            "password": forms.PasswordInput(),
+        }
+
+
 class SignUpForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
