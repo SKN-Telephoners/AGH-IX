@@ -1,4 +1,4 @@
-Flask==2.2.2
+Flask==2.3.2
 Flask-Executor==0.10.0
 Flask-HTTPAuth==4.7.0
 Flask-Shell2HTTP==1.9.1
